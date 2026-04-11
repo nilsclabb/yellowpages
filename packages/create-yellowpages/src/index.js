@@ -1,5 +1,6 @@
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
+import os from 'node:os';
 import path from 'node:path';
 import { PLATFORMS, detectPlatforms, getPlatform } from './platforms.js';
 import { installFiles, writeConfig, appendToInstructions } from './install.js';
@@ -62,11 +63,39 @@ export async function main() {
     }
   }
 
-  // ── Dynamic question counter ──
+  // ── Install location (global vs project) ──
 
   const platformDef = getPlatform(platform);
-  const showIntegration = platformDef?.hasIntegration === true;
-  const totalSteps = showIntegration ? 5 : 4;
+
+  const installLocation = await p.select({
+    message: 'Where should yellowpages be installed?',
+    options: [
+      {
+        value: 'project',
+        label: 'This project only',
+        hint: `${customPath || platformDef.skillPath || '.'}/yellowpages/`,
+      },
+      {
+        value: 'global',
+        label: 'Globally (all projects)',
+        hint: `~/${path.relative(os.homedir(), platformDef.globalSkillPath || path.join(os.homedir(), '.agents', 'skills'))}/yellowpages/`,
+      },
+    ],
+  });
+
+  if (p.isCancel(installLocation)) {
+    p.cancel('Installation cancelled.');
+    process.exit(0);
+  }
+
+  const isGlobal = installLocation === 'global';
+
+  // ── Dynamic question counter ──
+
+  const showIntegration = platformDef?.hasIntegration === true && !isGlobal;
+  const showProjectType = !isGlobal;
+  const totalSteps = (showIntegration ? 1 : 0) + (showProjectType ? 1 : 0) + 2 + 1;
+  // integration (conditional) + projectType (conditional) + state + config + scope = total
   let step = 0;
 
   function q(msg) {
@@ -126,33 +155,37 @@ export async function main() {
     process.exit(0);
   }
 
-  // ── Project type ──
+  // ── Project type (project installs only) ──
 
-  const projectType = await p.select({
-    message: q('What kind of project is this?'),
-    options: [
-      { value: 'new', label: 'New project', hint: 'set up full directory structure' },
-      { value: 'existing', label: 'Existing project', hint: 'non-destructive merge' },
-      { value: 'monorepo', label: 'Monorepo', hint: 'prompts for workspace path' },
-    ],
-  });
-  if (p.isCancel(projectType)) {
-    p.cancel('Installation cancelled.');
-    process.exit(0);
-  }
-
+  let projectType = 'new';
   let workspacePath = null;
-  if (projectType === 'monorepo') {
-    workspacePath = await p.text({
-      message: 'Workspace path (relative to repo root):',
-      placeholder: 'packages/my-app',
-      validate: (v) => {
-        if (!v || !v.trim()) return 'Workspace path is required';
-      },
+
+  if (showProjectType) {
+    projectType = await p.select({
+      message: q('What kind of project is this?'),
+      options: [
+        { value: 'new', label: 'New project', hint: 'set up full directory structure' },
+        { value: 'existing', label: 'Existing project', hint: 'non-destructive merge' },
+        { value: 'monorepo', label: 'Monorepo', hint: 'prompts for workspace path' },
+      ],
     });
-    if (p.isCancel(workspacePath)) {
+    if (p.isCancel(projectType)) {
       p.cancel('Installation cancelled.');
       process.exit(0);
+    }
+
+    if (projectType === 'monorepo') {
+      workspacePath = await p.text({
+        message: 'Workspace path (relative to repo root):',
+        placeholder: 'packages/my-app',
+        validate: (v) => {
+          if (!v || !v.trim()) return 'Workspace path is required';
+        },
+      });
+      if (p.isCancel(workspacePath)) {
+        p.cancel('Installation cancelled.');
+        process.exit(0);
+      }
     }
   }
 
@@ -178,19 +211,45 @@ export async function main() {
     process.exit(0);
   }
 
-  // ── Summary ──
+  // ── Resolve paths ──
 
-  const skillPath = customPath ? customPath.trim() : platformDef.skillPath;
-  const rootDir = projectType === 'monorepo' ? path.join(cwd, workspacePath.trim()) : cwd;
+  let skillPathAbsolute;
+  let governancePath;
+  let rootDir;
+
+  if (isGlobal) {
+    skillPathAbsolute = platformDef.globalSkillPath || path.join(os.homedir(), '.agents', 'skills');
+    governancePath = platformDef.globalGovernancePath;
+    rootDir = os.homedir();
+  } else if (projectType === 'monorepo') {
+    rootDir = path.join(cwd, workspacePath.trim());
+    skillPathAbsolute = path.join(rootDir, customPath || platformDef.skillPath);
+    governancePath = path.join(rootDir, '.agents');
+  } else {
+    rootDir = cwd;
+    skillPathAbsolute = path.join(cwd, customPath || platformDef.skillPath);
+    governancePath = path.join(cwd, '.agents');
+  }
+
+  const skillPathDisplay = isGlobal
+    ? `~/${path.relative(os.homedir(), skillPathAbsolute)}/yellowpages/`
+    : `${path.relative(cwd, skillPathAbsolute)}/yellowpages/`;
+
+  const governanceDisplay = isGlobal
+    ? `~/${path.relative(os.homedir(), governancePath)}/`
+    : '.agents/';
+
+  // ── Summary ──
 
   console.log();
   p.note(
     [
       `${pc.bold('Platform:')}     ${platformDef.name}`,
-      `${pc.bold('Skill path:')}   ${path.join(skillPath, 'yellowpages/')}`,
-      scope === 'full' ? `${pc.bold('Governance:')}   .agents/` : null,
+      `${pc.bold('Location:')}     ${isGlobal ? 'Global (all projects)' : 'Project'}`,
+      `${pc.bold('Skill path:')}   ${skillPathDisplay}`,
+      scope === 'full' ? `${pc.bold('Governance:')}   ${governanceDisplay}` : null,
       `${pc.bold('Scope:')}        ${SCOPE_LABELS[scope]}`,
-      `${pc.bold('Project:')}      ${projectType}${workspacePath ? ` (${workspacePath})` : ''}`,
+      !isGlobal ? `${pc.bold('Project:')}      ${projectType}${workspacePath ? ` (${workspacePath})` : ''}` : null,
       `${pc.bold('State:')}        ${stateTracking ? 'yes' : 'no'}`,
       `${pc.bold('Config:')}       ${createConfig ? 'yes' : 'no'}`,
     ]
@@ -215,20 +274,22 @@ export async function main() {
 
   try {
     const result = installFiles({
-      rootDir,
-      skillPath,
+      skillPathAbsolute,
+      governancePath,
       scope,
-      projectType,
+      projectType: isGlobal ? 'new' : projectType,
       stateTracking,
     });
 
     if (createConfig) {
-      writeConfig(rootDir, {
+      const configDir = isGlobal ? os.homedir() : rootDir;
+      writeConfig(configDir, {
         version: VERSION,
         platform,
-        skillPath,
+        installLocation,
+        skillPath: path.relative(configDir, skillPathAbsolute),
         scope,
-        projectType,
+        projectType: isGlobal ? 'global' : projectType,
         stateTracking,
         integrationStyle,
         installedAt: new Date().toISOString(),
@@ -236,20 +297,30 @@ export async function main() {
       result.created.push('yellowpages.config.json');
     }
 
-    if (integrationStyle === 'project-instructions') {
+    if (integrationStyle === 'project-instructions' && !isGlobal) {
       appendToInstructions(rootDir, 'CLAUDE.md');
       result.created.push('CLAUDE.md (appended)');
     }
 
     spinner.stop('Installation complete');
 
-    // Results
+    // Results — show paths relative to home (global) or cwd (project)
+    const displayBase = isGlobal ? os.homedir() : cwd;
+    const prefix = isGlobal ? '~/' : '';
+
+    function displayPath(absPath) {
+      if (absPath.startsWith('/') || absPath.startsWith('\\')) {
+        return prefix + path.relative(displayBase, absPath);
+      }
+      return absPath;
+    }
+
     const lines = [];
     for (const f of result.created) {
-      lines.push(`${pc.green('+')} ${f}`);
+      lines.push(`${pc.green('+')} ${displayPath(f)}`);
     }
     for (const f of result.skipped) {
-      lines.push(`${pc.yellow('~')} ${f} ${pc.dim('(exists, skipped)')}`);
+      lines.push(`${pc.yellow('~')} ${displayPath(f)} ${pc.dim('(exists, skipped)')}`);
     }
 
     if (lines.length > 0) {

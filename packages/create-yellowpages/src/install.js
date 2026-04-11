@@ -48,49 +48,47 @@ function safeWrite(absolutePath, content, nonDestructive) {
 }
 
 /**
- * Install yellowpages files to the target project.
+ * Install yellowpages files.
  *
  * @param {Object} options
- * @param {string} options.rootDir       Absolute path to project root
- * @param {string} options.skillPath     Relative path to skills dir (e.g. '.claude/skills')
+ * @param {string} options.skillPathAbsolute   Absolute path to skills dir (e.g. /Users/x/.claude/skills)
+ * @param {string} options.governancePath      Absolute path to .agents dir
  * @param {'full'|'skill'|'minimal'} options.scope
  * @param {'new'|'existing'|'monorepo'} options.projectType
  * @param {boolean} options.stateTracking
  * @returns {{ created: string[], skipped: string[] }}
  */
-export function installFiles({ rootDir, skillPath, scope, projectType, stateTracking }) {
+export function installFiles({ skillPathAbsolute, governancePath, scope, projectType, stateTracking }) {
   const nonDestructive = projectType === 'existing' || projectType === 'monorepo';
   const { skillKeys, governanceKeys } = resolveFileList(scope, stateTracking);
 
   const created = [];
   const skipped = [];
 
-  // Skill files → <rootDir>/<skillPath>/yellowpages/...
+  // Skill files → <skillPathAbsolute>/yellowpages/...
   for (const key of skillKeys) {
     const tail = key.slice(SKILL_PREFIX.length);
-    const dest = path.join(rootDir, skillPath, 'yellowpages', tail);
+    const dest = path.join(skillPathAbsolute, 'yellowpages', tail);
     const status = safeWrite(dest, FILES[key], nonDestructive);
-    const display = path.relative(rootDir, dest);
-    (status === 'created' ? created : skipped).push(display);
+    (status === 'created' ? created : skipped).push(dest);
   }
 
-  // Governance files → <rootDir>/.agents/...
+  // Governance files → <governancePath>/...
   for (const key of governanceKeys) {
-    const dest = path.join(rootDir, '.agents', key);
+    const dest = path.join(governancePath, key);
     const status = safeWrite(dest, FILES[key], nonDestructive);
-    const display = path.relative(rootDir, dest);
-    (status === 'created' ? created : skipped).push(display);
+    (status === 'created' ? created : skipped).push(dest);
   }
 
   // Create empty learnings.jsonl if state tracking enabled
   if (stateTracking) {
-    const learningsPath = path.join(rootDir, '.agents', 'state', 'learnings.jsonl');
+    const learningsPath = path.join(governancePath, 'state', 'learnings.jsonl');
     if (!fs.existsSync(learningsPath)) {
       fs.mkdirSync(path.dirname(learningsPath), { recursive: true });
       fs.writeFileSync(learningsPath, '', 'utf-8');
-      created.push('.agents/state/learnings.jsonl');
+      created.push(learningsPath);
     } else {
-      skipped.push('.agents/state/learnings.jsonl');
+      skipped.push(learningsPath);
     }
   }
 
@@ -116,7 +114,7 @@ export function appendToInstructions(rootDir, filename) {
 ${marker}
 ## Skills
 
-This project uses the [yellowpages](https://github.com/codewithnils/yellowpages) skill system.
+This project uses the [yellowpages](https://github.com/nilsclabb/yellowpages) skill system.
 
 - Skill definitions: \`.claude/skills/yellowpages/\`
 - Governance (workflows, checklists, agents): \`.agents/\`

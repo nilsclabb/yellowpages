@@ -17,7 +17,7 @@ Confirm the skill meets yellowpages standards before marking it complete.
 
 4. Package the skill (optional, for distribution):
    ```bash
-   python .agents/skills/skill-creator/scripts/package_skill.py .agents/skills/<skill-name>
+   python .agents/skills/yellowpages/scripts/package_skill.py .agents/skills/<skill-name>
    ```
 
 5. Write or update `walkthrough.md` in the conversation artifact directory summarizing what was built and any design decisions.

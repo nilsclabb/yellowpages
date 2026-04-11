@@ -47,7 +47,7 @@ Consult these references while editing:
 - Writing instructions → [authoring.md](authoring.md)
 - Splitting content → [progressive-disclosure.md](progressive-disclosure.md)
 - Output format patterns → [output-patterns.md](output-patterns.md)
-- Sequential/conditional flow → [workflows.md](workflows.md)
+- Sequential/conditional flow → [workflow-patterns.md](workflow-patterns.md)
 
 ## Step 5 — Package
 

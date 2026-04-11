@@ -14,7 +14,7 @@ constraints:
   - Never link to a file without stating when the agent should read it
 commands:
   - name: create-skill
-    description: Scaffold a new yellowpages-compliant skill using skill-creator
+    description: Scaffold a new yellowpages-compliant skill
   - name: audit-skill
     description: Check a skill against size limits and navigation rules
   - name: split-skill

@@ -10,37 +10,33 @@ A modular, navigable skill architecture for AI agents. Skills are organized like
 - **Deep-link navigation** — every reference link includes *when* to read it
 - **Self-documenting index** — `INDEX.md` ≤ 30 lines lists every skill + trigger
 
-## Skills
-
-| Skill | Purpose |
-|---|---|
-| `yellowpages` | The meta-standard itself — skill design, navigation, documentation |
-| `skill-creator` | How to create, author, and package skills |
-
 ## Structure
 
 ```
 .agents/
 └── skills/
-    ├── yellowpages/          ← Meta-skill (this standard)
-    │   ├── SKILL.md
-    │   ├── INDEX.md          ← Master skill listing
-    │   └── references/
-    │       ├── skill-design.md
-    │       ├── navigation.md
-    │       └── documentation.md
-    └── skill-creator/        ← Skill authoring tool
-        ├── SKILL.md
+    └── yellowpages/
+        ├── SKILL.md              ← Cover page (≤ 80 lines)
+        ├── INDEX.md              ← Master skill listing
         ├── references/
-        │   ├── anatomy.md
-        │   ├── authoring.md
-        │   ├── progressive-disclosure.md
-        │   ├── workflow.md
-        │   └── output-patterns.md
+        │   ├── skill-design.md        ← Yellowpages design rules
+        │   ├── anatomy.md             ← Skill folder structure
+        │   ├── authoring.md           ← Writing SKILL.md files
+        │   ├── progressive-disclosure.md ← Splitting content
+        │   ├── creation-process.md    ← 6-step skill creation
+        │   ├── output-patterns.md     ← Template/example patterns
+        │   ├── workflow-patterns.md   ← Sequential/conditional flows
+        │   ├── navigation.md          ← Codebase & skill navigation
+        │   ├── documentation.md       ← Planning docs standard
+        │   ├── agents.md             ← Agent persona standard
+        │   ├── workflows.md          ← Step-file workflow standard
+        │   ├── state.md              ← Cross-session state tracking
+        │   ├── artifact-paths.md     ← Workflow artifact locations
+        │   └── learnings.md          ← Session learnings format
         └── scripts/
-            ├── init_skill.py
-            ├── package_skill.py
-            └── quick_validate.py
+            ├── init_skill.py          ← Scaffold a new skill
+            ├── package_skill.py       ← Package into .skill zip
+            └── quick_validate.py      ← Validate skill compliance
 ```
 
 ## Usage

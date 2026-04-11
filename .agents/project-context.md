@@ -29,7 +29,7 @@ This file is the "constitution" for all agents working in this repo. Read it at 
 ├── checklists/           ← quality verification lists
 ├── templates/            ← document scaffolds
 ├── state/                ← persistent cross-session state (learnings, gates)
-└── skills/               ← installable skills (yellowpages + skill-creator)
+└── skills/               ← installable skills (yellowpages)
 ```
 
 ## Navigation Protocol

@@ -1,11 +1,11 @@
 ---
 name: yellowpages
-description: The yellowpages skill defines how agents should structure skills, navigate between skills and documentation, document their planning work, define agent personas, run and track multi-step workflows, track state across sessions, and accumulate cross-session learnings. Use this skill when: creating or updating any skill in this repo, designing skill navigation systems, deciding how to split skill content into sub-files, documenting planning work (implementation plans, task lists, walkthroughs), defining an agent persona or specialist role, building a step-file workflow, tracking workflow state or gate status, reading or writing session learnings, or navigating a large codebase or skillbase efficiently.
+description: The yellowpages skill defines how agents should create, author, and package skills, structure skills for navigation, navigate between skills and documentation, document planning work, define agent personas, run and track multi-step workflows, track state across sessions, and accumulate cross-session learnings. Use this skill when: creating a new skill, scaffolding a skill, authoring or packaging a skill, updating an existing skill, designing skill navigation systems, deciding how to split skill content into sub-files, writing SKILL.md frontmatter or body, documenting planning work (implementation plans, task lists, walkthroughs), defining an agent persona or specialist role, building a step-file workflow, tracking workflow state or gate status, reading or writing session learnings, or navigating a large codebase or skillbase efficiently.
 ---
 
 # Yellowpages
 
-The yellowpages system is the meta-standard for how skills, agents, workflows, documentation, state, and codebase navigation work in this repo. Every entry is a short cover page that points you to the right place — not the full story.
+The yellowpages system is the complete standard for how skills are created, authored, packaged, navigated, and maintained. It also covers agents, workflows, documentation, state, and codebase navigation. Every entry is a short cover page that points you to the right place — not the full story.
 
 ## The 5 Rules
 
@@ -17,11 +17,22 @@ The yellowpages system is the meta-standard for how skills, agents, workflows, d
 | **Deep-link navigation** | Every reference listed with *when* to read it |
 | **Self-documenting index** | `INDEX.md` ≤ 30 lines lists every item + trigger |
 
-## Reference Map
+## Reference Map — Skill Creation & Authoring
 
 | When you need to... | Read |
 |---|---|
+| Follow the 6-step skill creation process | [references/creation-process.md](references/creation-process.md) |
+| Understand skill folder structure and resource types | [references/anatomy.md](references/anatomy.md) |
 | Design a new yellowpages-compliant skill | [references/skill-design.md](references/skill-design.md) |
+| Write SKILL.md frontmatter and body instructions | [references/authoring.md](references/authoring.md) |
+| Split skill content across multiple files | [references/progressive-disclosure.md](references/progressive-disclosure.md) |
+| Use template or example patterns for consistent output | [references/output-patterns.md](references/output-patterns.md) |
+| Structure sequential or conditional flows in a skill | [references/workflow-patterns.md](references/workflow-patterns.md) |
+
+## Reference Map — Navigation, Workflows & State
+
+| When you need to... | Read |
+|---|---|
 | Navigate between skills, docs, or codebase files | [references/navigation.md](references/navigation.md) |
 | Document planning work (plans, tasks, walkthroughs) | [references/documentation.md](references/documentation.md) |
 | Define an agent persona or specialist role | [references/agents.md](references/agents.md) |
@@ -29,6 +40,14 @@ The yellowpages system is the meta-standard for how skills, agents, workflows, d
 | Track workflow state across sessions | [references/state.md](references/state.md) |
 | Write or read workflow artifact output paths | [references/artifact-paths.md](references/artifact-paths.md) |
 | Log or read cross-session learnings | [references/learnings.md](references/learnings.md) |
+
+## Quick Start — Create a Skill
+
+```bash
+python scripts/init_skill.py <skill-name> --path <output-directory>
+```
+
+For the full 6-step process, read [references/creation-process.md](references/creation-process.md).
 
 ## Repo Index
 

@@ -6,8 +6,7 @@ Master listing of everything in this repo. Read this before scanning individual 
 
 | Skill | Triggers when... | Covers |
 |---|---|---|
-| `skill-creator` | "create a skill", "new skill" | Skill scaffolding, anatomy, authoring, packaging |
-| `yellowpages` | "skill standard", "document plan", "agent persona", "workflow", "learnings", "state" | Meta-standard: skill design, navigation, documentation, agents, workflows, state, learnings |
+| `yellowpages` | "create a skill", "new skill", "scaffold skill", "skill standard", "document plan", "agent persona", "workflow", "learnings", "state" | Complete standard: skill creation, authoring, packaging, design, navigation, documentation, agents, workflows, state, learnings |
 
 ## Agents (Personas)
 

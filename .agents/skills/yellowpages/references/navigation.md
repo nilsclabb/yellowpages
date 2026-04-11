@@ -41,6 +41,5 @@ To find context from past conversations, check KI (Knowledge Items) summaries fi
 ```markdown
 | Skill | Triggers on | Covers |
 |---|---|---|
-| skill-creator | "create a skill", "new skill" | Skill scaffolding, packaging |
-| yellowpages | "skill standard", "how to document" | Meta-skill rules, navigation |
+| yellowpages | "create a skill", "skill standard", "how to document" | Skill creation, design, navigation |
 ```

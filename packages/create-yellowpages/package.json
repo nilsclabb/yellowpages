@@ -1,0 +1,40 @@
+{
+  "name": "create-yellowpages",
+  "version": "0.1.0",
+  "description": "Install the yellowpages skill system for AI agents",
+  "type": "module",
+  "bin": {
+    "create-yellowpages": "bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "scripts": {
+    "bundle": "node scripts/bundle-content.js",
+    "prepublishOnly": "node scripts/bundle-content.js"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.10.0",
+    "picocolors": "^1.1.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "skills",
+    "claude",
+    "cursor",
+    "windsurf",
+    "copilot",
+    "scaffold",
+    "yellowpages"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codewithnils/yellowpages"
+  }
+}

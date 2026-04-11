@@ -1,0 +1,56 @@
+name: Publish to npm
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.agents/**'
+      - 'skills/**'
+      - 'packages/yp-stack/**'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        working-directory: packages/yp-stack
+        run: npm install
+
+      - name: Bundle content
+        working-directory: packages/yp-stack
+        run: npm run bundle
+
+      - name: Check if version changed
+        id: version-check
+        working-directory: packages/yp-stack
+        run: |
+          LOCAL=$(node -p "require('./package.json').version")
+          REMOTE=$(npm view yp-stack version 2>/dev/null || echo "0.0.0")
+          echo "local=$LOCAL" >> "$GITHUB_OUTPUT"
+          echo "remote=$REMOTE" >> "$GITHUB_OUTPUT"
+          if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to npm
+        if: steps.version-check.outputs.changed == 'true'
+        working-directory: packages/yp-stack
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Skip publish (version unchanged)
+        if: steps.version-check.outputs.changed == 'false'
+        run: |
+          echo "Version ${{ steps.version-check.outputs.local }} already published, skipping."

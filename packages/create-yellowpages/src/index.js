@@ -17,7 +17,7 @@ export async function main() {
   const cwd = process.cwd();
 
   console.log();
-  p.intro(pc.bgCyan(pc.black(' create-yellowpages ')));
+  p.intro(pc.bgCyan(pc.black(' yp-stack ')));
 
   console.log();
   console.log(`  ${pc.dim('The yellowpages skill system for AI agents')}`);

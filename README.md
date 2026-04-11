@@ -13,9 +13,11 @@ A modular, navigable skill architecture for AI agents. Skills are organized like
 ## Structure
 
 ```
+skills/
+└── yellowpages/              ← skills.sh discovery (npx skills add)
 .agents/
 └── skills/
-    └── yellowpages/
+    └── yellowpages/          ← governance copy
         ├── SKILL.md              ← Cover page (≤ 80 lines)
         ├── INDEX.md              ← Master skill listing
         ├── references/
@@ -39,6 +41,16 @@ A modular, navigable skill architecture for AI agents. Skills are organized like
             └── quick_validate.py      ← Validate skill compliance
 ```
 
-## Usage
+## Install
 
-Install skills via the agent runtime (see your host platform's docs). The `yellowpages` skill triggers automatically whenever an agent designs a skill, plans work, or navigates a codebase in this repo.
+**Via skills.sh** (works with Claude Code, Cursor, Copilot, and 40+ agents):
+
+```bash
+npx skills add nilsclabb/yellowpages
+```
+
+**Via guided installer** (interactive setup with platform detection):
+
+```bash
+npx yp-stack
+```

@@ -2,11 +2,15 @@ import * as p from "@clack/prompts";
 import pc from "picocolors";
 import os from "node:os";
 import path from "node:path";
+import { createRequire } from "module";
 import { PLATFORMS, detectPlatforms, getPlatform } from "./platforms.js";
 import { installFiles, writeConfig, appendToInstructions } from "./install.js";
 import { installCaveman } from "./caveman.js";
+import { isInteractive } from "./tty.js";
+import { splash, fillBar, customSpinner, celebration } from "./animations.js";
 
-const VERSION = "0.1.0";
+const _require = createRequire(import.meta.url);
+const { version: VERSION } = _require("../package.json");
 
 const SCOPE_LABELS = {
   full: "Full stack",
@@ -17,13 +21,12 @@ const SCOPE_LABELS = {
 export async function main() {
   const cwd = process.cwd();
 
-  console.log();
-  p.intro(pc.bgCyan(pc.black(" yp-stack ")));
+  await splash(isInteractive);
 
-  console.log();
-  console.log(`  ${pc.dim("The yellowpages skill system for AI agents")}`);
-  console.log(`  ${pc.dim("Target:")} ${pc.cyan(cwd)}`);
-  console.log();
+  if (isInteractive) {
+    console.log(`  ${pc.dim("Target:")} ${pc.cyan(cwd)}`);
+    console.log();
+  }
 
   // ── Platform (gateway question, unnumbered) ──
 
@@ -34,9 +37,9 @@ export async function main() {
     message: "Which platform are you using?",
     options: PLATFORMS.map((pl) => ({
       value: pl.value,
-      label: pl.name,
+      label: detected.includes(pl.value) ? pc.cyan(pl.name) : pl.name,
       hint: pl.skillPath
-        ? `${pl.skillPath}/${detected.includes(pl.value) ? pc.green(" detected") : ""}`
+        ? `${pl.skillPath}/${detected.includes(pl.value) ? pc.green("✓ detected") : ""}`
         : "enter path",
     })),
     initialValue,
@@ -101,7 +104,7 @@ export async function main() {
 
   function q(msg) {
     step++;
-    return `${pc.dim(`[${step} of ${totalSteps}]`)} ${msg}`;
+    return `${pc.yellow(`[${step} of ${totalSteps}]`)} ${msg}`;
   }
 
   // ── Integration style (Claude Code only) ──
@@ -240,6 +243,17 @@ export async function main() {
     ? `~/${path.relative(os.homedir(), governancePath)}/`
     : ".agents/";
 
+  // Path display helpers — hoisted here so onFile callback can use them
+  const displayBase = isGlobal ? os.homedir() : cwd;
+  const prefix = isGlobal ? "~/" : "";
+
+  function displayPath(absPath) {
+    if (absPath.startsWith("/") || absPath.startsWith("\\")) {
+      return prefix + path.relative(displayBase, absPath);
+    }
+    return absPath;
+  }
+
   // ── Summary ──
 
   console.log();
@@ -272,17 +286,50 @@ export async function main() {
 
   // ── Install ──
 
-  const spinner = p.spinner();
-  spinner.start(`Installing yellowpages v${VERSION}`);
+  // ── Install animation ────────────────────────────────────────────────────
+
+  let spinner = null;
 
   try {
-    const result = installFiles({
-      skillPathAbsolute,
-      governancePath,
-      scope,
-      projectType: isGlobal ? "new" : projectType,
-      stateTracking,
-    });
+    if (isInteractive) {
+      // Act 1: theatrical pre-install bar
+      console.log();
+      process.stdout.write("  " + pc.cyan("⚡ Preparing yellowpages v" + VERSION + "...") + "\n");
+      await fillBar(20, 600);
+      console.log();
+
+      // Act 2: per-file spinner
+      spinner = customSpinner(["◐", "◓", "◑", "◒"], 80);
+      spinner.start(pc.dim("Installing skills..."));
+    }
+
+    function onFile(absPath, status) {
+      if (!isInteractive || !spinner) return;
+      // Determine next label before pausing
+      const inGovernance = absPath.startsWith(governancePath);
+      const nextLabel = pc.dim(inGovernance ? "Installing governance..." : "Installing skills...");
+      // pause → write → update label → resume (order matters: update before resume)
+      spinner.pause();
+      const rel = displayPath(absPath);
+      if (status === "created") {
+        process.stdout.write("  " + pc.green("+") + " " + pc.cyan(rel) + "\n");
+      } else {
+        process.stdout.write("  " + pc.yellow("~") + " " + pc.dim(rel) + pc.dim(" (exists, skipped)") + "\n");
+      }
+      spinner.update(nextLabel);
+      spinner.resume();
+    }
+
+    const result = installFiles(
+      {
+        skillPathAbsolute,
+        governancePath,
+        scope,
+        projectType: isGlobal ? "new" : projectType,
+        stateTracking,
+      },
+      onFile,
+    );
 
     if (createConfig) {
       const configDir = isGlobal ? os.homedir() : rootDir;
@@ -305,7 +352,18 @@ export async function main() {
       result.created.push("CLAUDE.md (appended)");
     }
 
-    spinner.stop("Installation complete");
+    // Act 3: completion burst
+    if (isInteractive && spinner) {
+      spinner.stop();
+      console.log();
+      process.stdout.write(
+        "  " + pc.bold(pc.green("✔")) + "  " +
+        pc.bold(pc.green(result.created.length + " files installed")) +
+        pc.dim(" · ") +
+        pc.yellow(result.skipped.length + " skipped") + "\n"
+      );
+      await new Promise((r) => setTimeout(r, 200));
+    }
 
     // ── Caveman terse mode ──
     console.log();
@@ -323,37 +381,17 @@ export async function main() {
       }
     }
 
-    // Results — show paths relative to home (global) or cwd (project)
-    const displayBase = isGlobal ? os.homedir() : cwd;
-    const prefix = isGlobal ? "~/" : "";
-
-    function displayPath(absPath) {
-      if (absPath.startsWith("/") || absPath.startsWith("\\")) {
-        return prefix + path.relative(displayBase, absPath);
-      }
-      return absPath;
-    }
-
-    const lines = [];
-    for (const f of result.created) {
-      lines.push(`${pc.green("+")} ${displayPath(f)}`);
-    }
-    for (const f of result.skipped) {
-      lines.push(`${pc.yellow("~")} ${displayPath(f)} ${pc.dim("(exists, skipped)")}`);
-    }
-
-    if (lines.length > 0) {
-      console.log();
-      p.note(
-        lines.join("\n"),
-        `${result.created.length} created, ${result.skipped.length} skipped`,
-      );
-    }
-
-    console.log();
-    p.outro(pc.green("Done! Yellowpages is ready."));
+    // Outro celebration
+    const nextSteps = [
+      "📖  Read   " + pc.cyan("skills/yellowpages/SKILL.md"),
+      "🤖  Open   " + pc.cyan("your agent platform"),
+      "⚡  Run    " + pc.yellow("/yellowpages to get started"),
+    ];
+    await celebration(nextSteps, isInteractive);
   } catch (err) {
-    spinner.stop("Installation failed");
+    if (spinner) {
+      spinner.stop(pc.red("Installation failed"));
+    }
     p.log.error(err.message);
     process.exit(1);
   }

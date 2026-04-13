@@ -31,7 +31,7 @@ async function main() {
       fs.writeFileSync(FLAG_FILE, 'ultra', 'utf-8');
     } else if (prompt.startsWith('/caveman lite')) {
       fs.writeFileSync(FLAG_FILE, 'lite', 'utf-8');
-    } else if (prompt.startsWith('/caveman')) {
+    } else if (prompt.startsWith('/caveman full') || prompt.startsWith('/caveman')) {
       fs.writeFileSync(FLAG_FILE, 'full', 'utf-8');
     } else if (prompt.includes('stop caveman') || prompt.includes('normal mode')) {
       try { fs.unlinkSync(FLAG_FILE); } catch { /* already gone — fine */ }

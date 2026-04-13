@@ -16,6 +16,7 @@ echo "Installing caveman hooks for Claude Code..."
 
 # Create hooks dir and copy files
 mkdir -p "$HOOKS_DIR"
+echo '{"type":"module"}' > "$HOOKS_DIR/package.json"
 cp "$SCRIPT_DIR/caveman-activate.js" "$HOOKS_DIR/caveman-activate.js"
 cp "$SCRIPT_DIR/caveman-mode-tracker.js" "$HOOKS_DIR/caveman-mode-tracker.js"
 # Also copy rule body source so the hook can read updates without reinstalling

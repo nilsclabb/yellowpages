@@ -67,7 +67,7 @@ async function main() {
     const prompt = (input?.prompt ?? '').trim().toLowerCase();
     if (prompt.startsWith('/caveman ultra')) fs.writeFileSync(FLAG_FILE, 'ultra', 'utf-8');
     else if (prompt.startsWith('/caveman lite')) fs.writeFileSync(FLAG_FILE, 'lite', 'utf-8');
-    else if (prompt.startsWith('/caveman')) fs.writeFileSync(FLAG_FILE, 'full', 'utf-8');
+    else if (prompt.startsWith('/caveman full') || prompt.startsWith('/caveman')) fs.writeFileSync(FLAG_FILE, 'full', 'utf-8');
     else if (prompt.includes('stop caveman') || prompt.includes('normal mode')) {
       try { fs.unlinkSync(FLAG_FILE); } catch {}
     }
@@ -128,6 +128,7 @@ function _installClaudeCode() {
   const trackerCmd   = `node ${path.join(hooksDir, 'caveman-mode-tracker.js')}`;
 
   fs.mkdirSync(hooksDir, { recursive: true });
+  fs.writeFileSync(path.join(hooksDir, 'package.json'), '{"type":"module"}\n', 'utf-8');
   fs.mkdirSync(rulesDir, { recursive: true });
   fs.writeFileSync(path.join(hooksDir, 'caveman-activate.js'),    HOOK_ACTIVATE, 'utf-8');
   fs.writeFileSync(path.join(hooksDir, 'caveman-mode-tracker.js'), HOOK_TRACKER,  'utf-8');
@@ -191,6 +192,7 @@ function _uninstallClaudeCode() {
 
   try { fs.unlinkSync(path.join(hooksDir, 'caveman-activate.js'));    } catch {}
   try { fs.unlinkSync(path.join(hooksDir, 'caveman-mode-tracker.js')); } catch {}
+  try { fs.unlinkSync(path.join(hooksDir, 'package.json')); } catch {}
   try { fs.unlinkSync(flagFile);   } catch {}
   try { fs.unlinkSync(rulesFile);  } catch {}
 

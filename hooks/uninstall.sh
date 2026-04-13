@@ -14,6 +14,7 @@ echo "Uninstalling caveman hooks..."
 # Remove hook files (no-op if missing)
 rm -f "$HOOKS_DIR/caveman-activate.js"
 rm -f "$HOOKS_DIR/caveman-mode-tracker.js"
+rm -f "$HOOKS_DIR/package.json"
 echo "  ✓ Hook files removed"
 
 # Remove flag file

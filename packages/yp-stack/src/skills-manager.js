@@ -12,10 +12,10 @@
  * Keep MANIFEST_HOOK in sync with hooks/skills-manifest.js when updating.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import os from 'node:os';
-import { getPlatform } from './platforms.js';
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { getPlatform } from "./platforms.js";
 
 // ─── Bundled hook content ────────────────────────────────────────────────────
 
@@ -61,7 +61,7 @@ try{
 // ─── Install ─────────────────────────────────────────────────────────────────
 
 export function installSkillsManager(platform, _cwd = process.cwd()) {
-  if (platform === 'claude') {
+  if (platform === "claude") {
     _installClaudeCode();
   }
   // Skill files are already installed by installFiles() via content.js FILES map.
@@ -70,85 +70,112 @@ export function installSkillsManager(platform, _cwd = process.cwd()) {
 }
 
 function _installClaudeCode() {
-  const hooksDir = path.join(os.homedir(), '.claude', 'hooks');
-  const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
-  const manifestCmd = `node ${path.join(hooksDir, 'skills-manifest.js')}`;
+  const hooksDir = path.join(os.homedir(), ".claude", "hooks");
+  const settingsPath = path.join(os.homedir(), ".claude", "settings.json");
+  const manifestCmd = `node ${path.join(hooksDir, "skills-manifest.js")}`;
 
   // Ensure hooks dir + package.json
   fs.mkdirSync(hooksDir, { recursive: true });
-  const pkgPath = path.join(hooksDir, 'package.json');
+  const pkgPath = path.join(hooksDir, "package.json");
   let pkg = {};
-  try { pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8')); } catch {}
-  if (pkg.type !== 'module') {
-    pkg.type = 'module';
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8');
+  try {
+    pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+  } catch {}
+  if (pkg.type !== "module") {
+    pkg.type = "module";
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf-8");
   }
 
   // Write hook file
-  fs.writeFileSync(path.join(hooksDir, 'skills-manifest.js'), MANIFEST_HOOK, 'utf-8');
+  fs.writeFileSync(path.join(hooksDir, "skills-manifest.js"), MANIFEST_HOOK, "utf-8");
 
   // Patch settings.json — idempotent (hasCmd check)
   let settings = {};
-  try { settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8')); } catch {}
+  try {
+    settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+  } catch {}
   settings.hooks ??= {};
   settings.hooks.SessionStart ??= [];
-  const hasCmd = (arr, cmd) => arr.some(h => (h?.hooks ?? []).some(e => e?.command === cmd));
+  const hasCmd = (arr, cmd) => arr.some((h) => (h?.hooks ?? []).some((e) => e?.command === cmd));
   if (!hasCmd(settings.hooks.SessionStart, manifestCmd)) {
-    settings.hooks.SessionStart.push({ hooks: [{ type: 'command', command: manifestCmd }] });
+    settings.hooks.SessionStart.push({ hooks: [{ type: "command", command: manifestCmd }] });
   }
   fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
-  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf-8');
+  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n", "utf-8");
 }
 
 // ─── Uninstall ───────────────────────────────────────────────────────────────
 
 export function uninstallSkillsManager(platform, cwd = process.cwd()) {
-  if (platform === 'claude') {
+  if (platform === "claude") {
     _uninstallClaudeCode();
   }
   // Derive skill path from yellowpages.config.json
   let skillPathAbsolute;
   try {
-    const config = JSON.parse(fs.readFileSync(path.join(cwd, 'yellowpages.config.json'), 'utf-8'));
+    const config = JSON.parse(fs.readFileSync(path.join(cwd, "yellowpages.config.json"), "utf-8"));
     const platformDef = getPlatform(platform);
-    const isGlobal = config.installLocation === 'global';
+    const isGlobal = config.installLocation === "global";
     if (isGlobal) {
-      skillPathAbsolute = platformDef?.globalSkillPath ?? path.join(os.homedir(), '.claude', 'skills');
+      skillPathAbsolute =
+        platformDef?.globalSkillPath ?? path.join(os.homedir(), ".claude", "skills");
     } else {
-      skillPathAbsolute = path.join(cwd, platformDef?.skillPath ?? '.claude/skills');
+      skillPathAbsolute = path.join(cwd, platformDef?.skillPath ?? ".claude/skills");
     }
   } catch {
     const platformDef = getPlatform(platform);
-    skillPathAbsolute = platformDef?.globalSkillPath ?? path.join(os.homedir(), '.claude', 'skills');
+    skillPathAbsolute =
+      platformDef?.globalSkillPath ?? path.join(os.homedir(), ".claude", "skills");
   }
   const YP_UTILITY_SKILLS = [
-    'yp-help','yp-status','yp-context','yp-session','yp-reload','yp-notes',
-    'yp-remember','yp-forget','manage-global-skills','manage-project-skills',
-    'scaffold-skill','validate-skill','yp-diagnose','yp-compress','yp-tasks','auto-plan',
+    "yp-help",
+    "yp-status",
+    "yp-context",
+    "yp-session",
+    "yp-reload",
+    "yp-notes",
+    "yp-remember",
+    "yp-forget",
+    "manage-global-skills",
+    "manage-project-skills",
+    "scaffold-skill",
+    "validate-skill",
+    "yp-diagnose",
+    "yp-compress",
+    "yp-tasks",
+    "auto-plan",
   ];
   for (const name of YP_UTILITY_SKILLS) {
-    const dir = path.join(skillPathAbsolute, 'yellowpages', name);
-    try { fs.rmSync(dir, { recursive: true, force: true }); } catch {}
+    const dir = path.join(skillPathAbsolute, "yellowpages", name);
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+    } catch {}
   }
 }
 
 function _uninstallClaudeCode() {
-  const hooksDir = path.join(os.homedir(), '.claude', 'hooks');
-  const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
-  const manifestCmd = `node ${path.join(hooksDir, 'skills-manifest.js')}`;
+  const hooksDir = path.join(os.homedir(), ".claude", "hooks");
+  const settingsPath = path.join(os.homedir(), ".claude", "settings.json");
+  const manifestCmd = `node ${path.join(hooksDir, "skills-manifest.js")}`;
 
   // Remove hook file
-  try { fs.unlinkSync(path.join(hooksDir, 'skills-manifest.js')); } catch {}
+  try {
+    fs.unlinkSync(path.join(hooksDir, "skills-manifest.js"));
+  } catch {}
 
   // Strip hook entry from settings.json
   let settings = {};
-  try { settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8')); } catch { return; }
+  try {
+    settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+  } catch {
+    return;
+  }
   const removeCmd = (arr, cmd) =>
     (arr ?? [])
-      .map(h => ({ ...h, hooks: (h.hooks ?? []).filter(e => e?.command !== cmd) }))
-      .filter(h => h.hooks.length > 0);
+      .map((h) => ({ ...h, hooks: (h.hooks ?? []).filter((e) => e?.command !== cmd) }))
+      .filter((h) => h.hooks.length > 0);
   if (settings.hooks) {
     settings.hooks.SessionStart = removeCmd(settings.hooks.SessionStart, manifestCmd);
   }
-  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf-8');
+  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n", "utf-8");
 }

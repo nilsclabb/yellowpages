@@ -315,7 +315,9 @@ export async function main() {
       if (status === "created") {
         process.stdout.write("  " + pc.green("+") + " " + pc.cyan(rel) + "\n");
       } else {
-        process.stdout.write("  " + pc.yellow("~") + " " + pc.dim(rel) + pc.dim(" (exists, skipped)") + "\n");
+        process.stdout.write(
+          "  " + pc.yellow("~") + " " + pc.dim(rel) + pc.dim(" (exists, skipped)") + "\n",
+        );
       }
       spinner.update(nextLabel);
       spinner.resume();
@@ -358,10 +360,13 @@ export async function main() {
       spinner.stop();
       console.log();
       process.stdout.write(
-        "  " + pc.bold(pc.green("✔")) + "  " +
-        pc.bold(pc.green(result.created.length + " files installed")) +
-        pc.dim(" · ") +
-        pc.yellow(result.skipped.length + " skipped") + "\n"
+        "  " +
+          pc.bold(pc.green("✔")) +
+          "  " +
+          pc.bold(pc.green(result.created.length + " files installed")) +
+          pc.dim(" · ") +
+          pc.yellow(result.skipped.length + " skipped") +
+          "\n",
       );
       await new Promise((r) => setTimeout(r, 200));
     }
@@ -370,7 +375,7 @@ export async function main() {
     try {
       installSkillsManager(platform, rootDir);
     } catch {
-      p.log.warn('Skills manager install failed — run npx yp-stack again to retry.');
+      p.log.warn("Skills manager install failed — run npx yp-stack again to retry.");
     }
 
     // ── Caveman terse mode ──

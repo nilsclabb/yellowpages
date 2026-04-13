@@ -6,5 +6,5 @@
 export const isInteractive =
   Boolean(process.stdout.isTTY) &&
   !process.env.CI &&
-  process.env.TERM !== 'dumb' &&
+  process.env.TERM !== "dumb" &&
   !process.env.NO_COLOR;

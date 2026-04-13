@@ -1,13 +1,13 @@
 // packages/yp-stack/src/animations.js
-import * as p from '@clack/prompts';
-import pc from 'picocolors';
-import figlet from 'figlet';
-import gradient from 'gradient-string';
-import { createRequire } from 'module';
+import * as p from "@clack/prompts";
+import pc from "picocolors";
+import figlet from "figlet";
+import gradient from "gradient-string";
+import { createRequire } from "module";
 
 // ── Cursor restore on Ctrl+C ────────────────────────────────────────────────
-process.on('SIGINT', () => {
-  process.stdout.write('\x1B[?25h');
+process.on("SIGINT", () => {
+  process.stdout.write("\x1B[?25h");
   process.exit(130);
 });
 
@@ -15,9 +15,9 @@ process.on('SIGINT', () => {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const HIDE_CURSOR = '\x1B[?25l';
-const SHOW_CURSOR = '\x1B[?25h';
-const CLEAR_LINE  = '\x1B[2K\r';
+const HIDE_CURSOR = "\x1B[?25l";
+const SHOW_CURSOR = "\x1B[?25h";
+const CLEAR_LINE = "\x1B[2K\r";
 
 // ── typewriter ───────────────────────────────────────────────────────────────
 
@@ -33,12 +33,12 @@ export async function typewriter(text, delayMs = 30) {
       await sleep(delayMs);
     }
     // Blink cursor briefly then remove it
-    process.stdout.write(pc.dim('|'));
+    process.stdout.write(pc.dim("|"));
     await sleep(180);
-    process.stdout.write('\b \b');
+    process.stdout.write("\b \b");
   } finally {
     process.stdout.write(SHOW_CURSOR);
-    process.stdout.write('\n');
+    process.stdout.write("\n");
   }
 }
 
@@ -55,10 +55,10 @@ export async function fillBar(widthChars = 20, durationMs = 600) {
     let filled = 0;
     while (filled <= widthChars) {
       const ratio = filled / widthChars;
-      const bar = '▓'.repeat(filled) + '░'.repeat(widthChars - filled);
+      const bar = "▓".repeat(filled) + "░".repeat(widthChars - filled);
       const colored = ratio < 0.5 ? pc.cyan(bar) : pc.green(bar);
       const pct = Math.round(ratio * 100);
-      process.stdout.write(CLEAR_LINE + '  ' + colored + '  ' + pc.dim(pct + '%'));
+      process.stdout.write(CLEAR_LINE + "  " + colored + "  " + pc.dim(pct + "%"));
       filled++;
       if (filled <= widthChars) await sleep(stepMs);
     }
@@ -79,7 +79,7 @@ export async function revealLines(lines, delayMs = 40) {
   process.stdout.write(HIDE_CURSOR);
   try {
     for (const line of lines) {
-      process.stdout.write(line + '\n');
+      process.stdout.write(line + "\n");
       await sleep(delayMs);
     }
   } finally {
@@ -101,19 +101,19 @@ export async function revealLines(lines, delayMs = 40) {
  *
  * finalMsg in stop() is optional — omit or pass '' to clear with no output.
  */
-export function customSpinner(frames = ['◐', '◓', '◑', '◒'], intervalMs = 80) {
+export function customSpinner(frames = ["◐", "◓", "◑", "◒"], intervalMs = 80) {
   let timer = null;
   let frameIdx = 0;
-  let currentLabel = '';
+  let currentLabel = "";
 
   function render() {
     const frame = pc.cyan(frames[frameIdx % frames.length]);
-    process.stdout.write(CLEAR_LINE + '  ' + frame + '  ' + currentLabel);
+    process.stdout.write(CLEAR_LINE + "  " + frame + "  " + currentLabel);
     frameIdx++;
   }
 
   return {
-    start(label = '') {
+    start(label = "") {
       if (timer) return; // already running
       currentLabel = label;
       frameIdx = 0;
@@ -125,7 +125,10 @@ export function customSpinner(frames = ['◐', '◓', '◑', '◒'], intervalMs 
       currentLabel = label;
     },
     pause() {
-      if (timer) { clearInterval(timer); timer = null; }
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
       process.stdout.write(CLEAR_LINE);
     },
     resume() {
@@ -133,10 +136,13 @@ export function customSpinner(frames = ['◐', '◓', '◑', '◒'], intervalMs 
       render();
       timer = setInterval(render, intervalMs);
     },
-    stop(finalMsg = '') {
-      if (timer) { clearInterval(timer); timer = null; }
+    stop(finalMsg = "") {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
       process.stdout.write(CLEAR_LINE);
-      if (finalMsg) process.stdout.write(finalMsg + '\n');
+      if (finalMsg) process.stdout.write(finalMsg + "\n");
       process.stdout.write(SHOW_CURSOR);
     },
   };
@@ -144,7 +150,7 @@ export function customSpinner(frames = ['◐', '◓', '◑', '◒'], intervalMs 
 
 // ── VERSION ──────────────────────────────────────────────────────────────────
 const _require = createRequire(import.meta.url);
-const { version: VERSION } = _require('../package.json');
+const { version: VERSION } = _require("../package.json");
 
 // ── splash ───────────────────────────────────────────────────────────────────
 
@@ -161,22 +167,22 @@ export async function splash(isInteractive) {
   }
 
   // Soft clear (preserve scrollback)
-  process.stdout.write('\x1B[2J\x1B[H');
+  process.stdout.write("\x1B[2J\x1B[H");
   await sleep(80);
 
   // ASCII art header
   process.stdout.write(HIDE_CURSOR);
-  const ascii = figlet.textSync('yp-stack', { font: 'ANSI Shadow' });
-  const yellowToOrange = gradient(['#f9d71c', '#ff8c00', '#ff6b00']);
+  const ascii = figlet.textSync("yp-stack", { font: "ANSI Shadow" });
+  const yellowToOrange = gradient(["#f9d71c", "#ff8c00", "#ff6b00"]);
   console.log(yellowToOrange(ascii));
 
   // Tagline typewriter
-  process.stdout.write('  ');
-  await typewriter(pc.bold('Agent skills & workflows, installed.'), 28);
+  process.stdout.write("  ");
+  await typewriter(pc.bold("Agent skills & workflows, installed."), 28);
 
   // Version + divider
-  console.log('  ' + pc.dim(`v${VERSION} · npx yp-stack`));
-  console.log('  ' + pc.dim('─'.repeat(50)));
+  console.log("  " + pc.dim(`v${VERSION} · npx yp-stack`));
+  console.log("  " + pc.dim("─".repeat(50)));
   console.log();
 
   process.stdout.write(SHOW_CURSOR);
@@ -193,33 +199,36 @@ export async function splash(isInteractive) {
  */
 export async function celebration(nextSteps, isInteractive) {
   if (!isInteractive) {
-    console.log('\nNext steps:');
+    console.log("\nNext steps:");
     for (const step of nextSteps) {
-      console.log('  ' + step);
+      console.log("  " + step);
     }
-    console.log('\nDone! Yellowpages is ready.');
+    console.log("\nDone! Yellowpages is ready.");
     return;
   }
 
   console.log();
 
   // Beat 1: DONE ASCII art, line-by-line reveal
-  const doneAscii = figlet.textSync('DONE!', { font: 'Small' });
-  const greenTeal = gradient(['#00b09b', '#96c93d']);
-  const doneLines = greenTeal(doneAscii).split('\n');
+  const doneAscii = figlet.textSync("DONE!", { font: "Small" });
+  const greenTeal = gradient(["#00b09b", "#96c93d"]);
+  const doneLines = greenTeal(doneAscii).split("\n");
   await revealLines(doneLines, 40);
 
   console.log();
 
   // Beat 2: Next steps note box (uses @clack for consistent styling)
-  p.note(nextSteps.join('\n'), "What's next?");
+  p.note(nextSteps.join("\n"), "What's next?");
 
   console.log();
 
   // Beat 3: Sign-off
   process.stdout.write(
-    '  ' + pc.bold(pc.yellow('◆')) + '  ' +
-    gradient.atlas('Yellowpages is ready. Go build something great.') + '\n'
+    "  " +
+      pc.bold(pc.yellow("◆")) +
+      "  " +
+      gradient.atlas("Yellowpages is ready. Go build something great.") +
+      "\n",
   );
   console.log();
 }

@@ -215,7 +215,7 @@ function _uninstallCopilot(cwd) {
   let content = fs.readFileSync(filePath, 'utf-8');
   const start = content.indexOf(COPILOT_START);
   const end   = content.indexOf(COPILOT_END);
-  if (start === -1 || end === -1) return;
+  if (start === -1 || end === -1 || end < start) return;
   content = content.slice(0, start).trimEnd() + '\n' + content.slice(end + COPILOT_END.length).trimStart();
   fs.writeFileSync(filePath, content || '', 'utf-8');
 }

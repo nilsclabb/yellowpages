@@ -3,7 +3,6 @@ import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import figlet from 'figlet';
 import gradient from 'gradient-string';
-import { createRequire } from 'module';
 
 // ── Cursor restore on Ctrl+C ────────────────────────────────────────────────
 process.on('SIGINT', () => {
@@ -27,16 +26,19 @@ const CLEAR_LINE  = '\x1B[2K\r';
  */
 export async function typewriter(text, delayMs = 30) {
   process.stdout.write(HIDE_CURSOR);
-  for (const char of text) {
-    process.stdout.write(char);
-    await sleep(delayMs);
+  try {
+    for (const char of text) {
+      process.stdout.write(char);
+      await sleep(delayMs);
+    }
+    // Blink cursor briefly then remove it
+    process.stdout.write(pc.dim('|'));
+    await sleep(180);
+    process.stdout.write('\b \b');
+  } finally {
+    process.stdout.write(SHOW_CURSOR);
+    process.stdout.write('\n');
   }
-  // Blink cursor briefly then remove it
-  process.stdout.write(pc.dim('|'));
-  await sleep(180);
-  process.stdout.write('\b \b');
-  process.stdout.write(SHOW_CURSOR);
-  process.stdout.write('\n');
 }
 
 // ── fillBar ──────────────────────────────────────────────────────────────────
@@ -47,20 +49,23 @@ export async function typewriter(text, delayMs = 30) {
  */
 export async function fillBar(widthChars = 20, durationMs = 600) {
   process.stdout.write(HIDE_CURSOR);
-  const stepMs = durationMs / widthChars;
-  let filled = 0;
-  while (filled <= widthChars) {
-    const ratio = filled / widthChars;
-    const bar = '▓'.repeat(filled) + '░'.repeat(widthChars - filled);
-    const colored = ratio < 0.5 ? pc.cyan(bar) : pc.green(bar);
-    const pct = Math.round(ratio * 100);
-    process.stdout.write(CLEAR_LINE + '  ' + colored + '  ' + pc.dim(pct + '%'));
-    filled++;
-    if (filled <= widthChars) await sleep(stepMs);
+  try {
+    const stepMs = durationMs / widthChars;
+    let filled = 0;
+    while (filled <= widthChars) {
+      const ratio = filled / widthChars;
+      const bar = '▓'.repeat(filled) + '░'.repeat(widthChars - filled);
+      const colored = ratio < 0.5 ? pc.cyan(bar) : pc.green(bar);
+      const pct = Math.round(ratio * 100);
+      process.stdout.write(CLEAR_LINE + '  ' + colored + '  ' + pc.dim(pct + '%'));
+      filled++;
+      if (filled <= widthChars) await sleep(stepMs);
+    }
+    await sleep(120);
+    process.stdout.write(CLEAR_LINE);
+  } finally {
+    process.stdout.write(SHOW_CURSOR);
   }
-  await sleep(120);
-  process.stdout.write(CLEAR_LINE);
-  process.stdout.write(SHOW_CURSOR);
 }
 
 // ── revealLines ──────────────────────────────────────────────────────────────
@@ -71,11 +76,14 @@ export async function fillBar(widthChars = 20, durationMs = 600) {
  */
 export async function revealLines(lines, delayMs = 40) {
   process.stdout.write(HIDE_CURSOR);
-  for (const line of lines) {
-    process.stdout.write(line + '\n');
-    await sleep(delayMs);
+  try {
+    for (const line of lines) {
+      process.stdout.write(line + '\n');
+      await sleep(delayMs);
+    }
+  } finally {
+    process.stdout.write(SHOW_CURSOR);
   }
-  process.stdout.write(SHOW_CURSOR);
 }
 
 // ── customSpinner ────────────────────────────────────────────────────────────
@@ -105,6 +113,7 @@ export function customSpinner(frames = ['◐', '◓', '◑', '◒'], intervalMs 
 
   return {
     start(label = '') {
+      if (timer) return; // already running
       currentLabel = label;
       frameIdx = 0;
       process.stdout.write(HIDE_CURSOR);
@@ -119,6 +128,7 @@ export function customSpinner(frames = ['◐', '◓', '◑', '◒'], intervalMs 
       process.stdout.write(CLEAR_LINE);
     },
     resume() {
+      process.stdout.write(HIDE_CURSOR);
       render();
       timer = setInterval(render, intervalMs);
     },

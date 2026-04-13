@@ -16,7 +16,8 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nilsclabb/yellowpages"
+    "url": "https://github.com/nilsclabb/yellowpages",
+    "directory": "packages/yp-stack"
   },
   "bin": {
     "yp-stack": "bin/cli.js"

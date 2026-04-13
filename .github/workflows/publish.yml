@@ -11,6 +11,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -40,15 +43,11 @@ jobs:
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm
         if: steps.version-check.outputs.changed == 'true'
         working-directory: packages/yp-stack
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public
 
       - name: Skip publish (version unchanged)
         if: steps.version-check.outputs.changed == 'false'

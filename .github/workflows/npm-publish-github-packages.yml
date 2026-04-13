@@ -1,36 +1,62 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
-
-name: Node.js Package
+name: Publish to GitHub Packages
 
 on:
-  release:
-    types: [created]
+  push:
+    branches: [main]
+    paths:
+      - '.agents/**'
+      - 'skills/**'
+      - 'packages/yp-stack/**'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci
-      - run: npm test
-
   publish-gpr:
-    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: https://npm.pkg.github.com/
-      - run: npm ci
-      - run: npm publish
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@nilsclabb'
+
+      - name: Install dependencies
+        working-directory: packages/yp-stack
+        run: npm install
+
+      - name: Bundle content
+        working-directory: packages/yp-stack
+        run: npm run bundle
+
+      - name: Check if version already published to GitHub Packages
+        id: version-check
+        working-directory: packages/yp-stack
+        run: |
+          LOCAL=$(node -p "require('./package.json').version")
+          echo "local=$LOCAL" >> "$GITHUB_OUTPUT"
+          if npm view "@nilsclabb/yp-stack@$LOCAL" version --registry https://npm.pkg.github.com 2>/dev/null; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set scoped package name for GitHub Packages
+        if: steps.version-check.outputs.changed == 'true'
+        working-directory: packages/yp-stack
+        run: npm pkg set name="@nilsclabb/yp-stack"
+
+      - name: Publish to GitHub Packages
+        if: steps.version-check.outputs.changed == 'true'
+        working-directory: packages/yp-stack
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip (version unchanged)
+        if: steps.version-check.outputs.changed == 'false'
+        run: echo "Version ${{ steps.version-check.outputs.local }} already in GitHub Packages, skipping."

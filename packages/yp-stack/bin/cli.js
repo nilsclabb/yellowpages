@@ -32,6 +32,29 @@ if (process.argv.includes("--uninstall") && process.argv.includes("caveman")) {
   process.exit(0);
 }
 
+// ── --uninstall skills-manager ───────────────────────────────────────────────
+if (process.argv.includes("--uninstall") && process.argv.includes("skills-manager")) {
+  const cwd = process.cwd();
+  let platform = null;
+  try {
+    const config = JSON.parse(fs.readFileSync(path.join(cwd, "yellowpages.config.json"), "utf-8"));
+    if (config.platform) platform = config.platform;
+  } catch {}
+  if (!platform) {
+    const detected = detectPlatforms(cwd);
+    platform = detected[0] ?? "generic";
+  }
+  try {
+    const { uninstallSkillsManager } = await import("../src/skills-manager.js");
+    uninstallSkillsManager(platform, cwd);
+    console.log(`Skills manager uninstalled (platform: ${platform}).`);
+  } catch (err) {
+    console.error("Skills manager uninstall failed:", err.message);
+    process.exit(1);
+  }
+  process.exit(0);
+}
+
 // ── Normal install flow ──────────────────────────────────────────────────────
 main().catch((err) => {
   console.error(err);

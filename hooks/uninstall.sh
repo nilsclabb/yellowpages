@@ -14,6 +14,7 @@ echo "Uninstalling caveman hooks..."
 # Remove hook files (no-op if missing)
 rm -f "$HOOKS_DIR/caveman-activate.js"
 rm -f "$HOOKS_DIR/caveman-mode-tracker.js"
+rm -f "$HOOKS_DIR/skills-manifest.js"
 rm -f "$HOOKS_DIR/package.json"
 echo "  ✓ Hook files removed"
 
@@ -33,8 +34,9 @@ import path from 'node:path';
 
 const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
 const hooksDir    = path.join(os.homedir(), '.claude', 'hooks');
-const activateCmd = `node ${path.join(hooksDir, 'caveman-activate.js')}`;
-const trackerCmd  = `node ${path.join(hooksDir, 'caveman-mode-tracker.js')}`;
+const activateCmd  = `node ${path.join(hooksDir, 'caveman-activate.js')}`;
+const trackerCmd   = `node ${path.join(hooksDir, 'caveman-mode-tracker.js')}`;
+const manifestCmd  = `node ${path.join(hooksDir, 'skills-manifest.js')}`;
 
 let settings = {};
 try { settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8')); } catch { process.exit(0); }
@@ -47,6 +49,7 @@ const removeCmd = (arr, cmd) =>
 if (settings.hooks) {
   settings.hooks.SessionStart    = removeCmd(settings.hooks.SessionStart,    activateCmd);
   settings.hooks.UserPromptSubmit = removeCmd(settings.hooks.UserPromptSubmit, trackerCmd);
+  settings.hooks.SessionStart    = removeCmd(settings.hooks.SessionStart,    manifestCmd);
 }
 
 fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf-8');

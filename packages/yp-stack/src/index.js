@@ -6,6 +6,7 @@ import { createRequire } from "module";
 import { PLATFORMS, detectPlatforms, getPlatform } from "./platforms.js";
 import { installFiles, writeConfig, appendToInstructions } from "./install.js";
 import { installCaveman } from "./caveman.js";
+import { installSkillsManager } from "./skills-manager.js";
 import { isInteractive } from "./tty.js";
 import { splash, fillBar, customSpinner, celebration } from "./animations.js";
 
@@ -363,6 +364,13 @@ export async function main() {
         pc.yellow(result.skipped.length + " skipped") + "\n"
       );
       await new Promise((r) => setTimeout(r, 200));
+    }
+
+    // ── Skills manager (core — always installed) ──
+    try {
+      installSkillsManager(platform, rootDir);
+    } catch {
+      p.log.warn('Skills manager install failed — run npx yp-stack again to retry.');
     }
 
     // ── Caveman terse mode ──

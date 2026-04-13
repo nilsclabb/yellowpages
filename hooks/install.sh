@@ -19,6 +19,8 @@ mkdir -p "$HOOKS_DIR"
 echo '{"type":"module"}' > "$HOOKS_DIR/package.json"
 cp "$SCRIPT_DIR/caveman-activate.js" "$HOOKS_DIR/caveman-activate.js"
 cp "$SCRIPT_DIR/caveman-mode-tracker.js" "$HOOKS_DIR/caveman-mode-tracker.js"
+cp "$SCRIPT_DIR/skills-manifest.js" "$HOOKS_DIR/skills-manifest.js"
+echo "  ✓ skills-manifest.js copied to $HOOKS_DIR"
 # Also copy rule body source so the hook can read updates without reinstalling
 mkdir -p "$HOME/.claude/rules"
 cp "$SCRIPT_DIR/../rules/caveman-activate.md" "$HOME/.claude/rules/caveman-activate.md"
@@ -36,8 +38,9 @@ import path from 'node:path';
 
 const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
 const hooksDir    = path.join(os.homedir(), '.claude', 'hooks');
-const activateCmd = `node ${path.join(hooksDir, 'caveman-activate.js')}`;
-const trackerCmd  = `node ${path.join(hooksDir, 'caveman-mode-tracker.js')}`;
+const activateCmd  = `node ${path.join(hooksDir, 'caveman-activate.js')}`;
+const trackerCmd   = `node ${path.join(hooksDir, 'caveman-mode-tracker.js')}`;
+const manifestCmd  = `node ${path.join(hooksDir, 'skills-manifest.js')}`;
 
 let settings = {};
 try { settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8')); } catch {}
@@ -54,6 +57,9 @@ if (!hasCmd(settings.hooks.SessionStart, activateCmd)) {
 }
 if (!hasCmd(settings.hooks.UserPromptSubmit, trackerCmd)) {
   settings.hooks.UserPromptSubmit.push({ hooks: [{ type: 'command', command: trackerCmd }] });
+}
+if (!hasCmd(settings.hooks.SessionStart, manifestCmd)) {
+  settings.hooks.SessionStart.push({ hooks: [{ type: 'command', command: manifestCmd }] });
 }
 
 fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf-8');

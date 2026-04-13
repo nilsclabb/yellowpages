@@ -76,3 +76,22 @@ Do not save scratch files in the project workspace.
 Use an artifact (markdown file) for: reports, tables, plans, walkthroughs, content you'll update over time.
 
 Respond directly (no artifact) for: short answers, questions, single-paragraph explanations.
+
+---
+
+## Committed Plans (Repo-Persistent)
+
+For plans that span multiple sessions, serve as subagent context, or document architectural decisions:
+
+**Location:** `docs/superpowers/plans/YYYY-MM-DD-NN-name.md`
+`NN` = two-digit sequential number per date (`01`, `02`, …).
+
+**Structure:**
+
+    # [Feature] Implementation Plan
+    Goal / Architecture / Tech Stack
+    ## File Map — table of files + responsibilities
+    ## Phase N: [Name] — steps with acceptance criteria
+    ## Risks + Mitigations / Success Metrics / File Touch List
+
+Use ephemeral plans for exploratory or short-lived work. Commit when the plan spans sessions or needs to be subagent-readable.

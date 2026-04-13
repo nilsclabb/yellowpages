@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { PLATFORMS, detectPlatforms, getPlatform } from './platforms.js';
 import { installFiles, writeConfig, appendToInstructions } from './install.js';
+import { installCaveman } from './caveman.js';
 
 const VERSION = '0.1.0';
 
@@ -303,6 +304,21 @@ export async function main() {
     }
 
     spinner.stop('Installation complete');
+
+    // ── Caveman terse mode ──
+    console.log();
+    const installCavemanMode = await p.confirm({
+      message: 'Install caveman terse mode? Cuts ~65% output tokens. ON by default, toggle with /caveman.',
+      initialValue: true,
+    });
+    if (!p.isCancel(installCavemanMode) && installCavemanMode) {
+      try {
+        installCaveman(platform, rootDir);
+        result.created.push('caveman terse mode');
+      } catch {
+        p.log.warn('Caveman install failed — install manually with: bash hooks/install.sh');
+      }
+    }
 
     // Results — show paths relative to home (global) or cwd (project)
     const displayBase = isGlobal ? os.homedir() : cwd;

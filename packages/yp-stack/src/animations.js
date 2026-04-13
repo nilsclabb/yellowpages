@@ -1,0 +1,134 @@
+// packages/yp-stack/src/animations.js
+import * as p from '@clack/prompts';
+import pc from 'picocolors';
+import figlet from 'figlet';
+import gradient from 'gradient-string';
+import { createRequire } from 'module';
+
+// ── Cursor restore on Ctrl+C ────────────────────────────────────────────────
+process.on('SIGINT', () => {
+  process.stdout.write('\x1B[?25h');
+  process.exit(130);
+});
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const HIDE_CURSOR = '\x1B[?25l';
+const SHOW_CURSOR = '\x1B[?25h';
+const CLEAR_LINE  = '\x1B[2K\r';
+
+// ── typewriter ───────────────────────────────────────────────────────────────
+
+/**
+ * Print text character by character with a blinking cursor.
+ * Hides cursor on start, restores on finish.
+ */
+export async function typewriter(text, delayMs = 30) {
+  process.stdout.write(HIDE_CURSOR);
+  for (const char of text) {
+    process.stdout.write(char);
+    await sleep(delayMs);
+  }
+  // Blink cursor briefly then remove it
+  process.stdout.write(pc.dim('|'));
+  await sleep(180);
+  process.stdout.write('\b \b');
+  process.stdout.write(SHOW_CURSOR);
+  process.stdout.write('\n');
+}
+
+// ── fillBar ──────────────────────────────────────────────────────────────────
+
+/**
+ * Animate a fill bar left-to-right in ~durationMs.
+ * Colors: cyan at start, green at end. Clears the bar line when done.
+ */
+export async function fillBar(widthChars = 20, durationMs = 600) {
+  process.stdout.write(HIDE_CURSOR);
+  const stepMs = durationMs / widthChars;
+  let filled = 0;
+  while (filled <= widthChars) {
+    const ratio = filled / widthChars;
+    const bar = '▓'.repeat(filled) + '░'.repeat(widthChars - filled);
+    const colored = ratio < 0.5 ? pc.cyan(bar) : pc.green(bar);
+    const pct = Math.round(ratio * 100);
+    process.stdout.write(CLEAR_LINE + '  ' + colored + '  ' + pc.dim(pct + '%'));
+    filled++;
+    if (filled <= widthChars) await sleep(stepMs);
+  }
+  await sleep(120);
+  process.stdout.write(CLEAR_LINE);
+  process.stdout.write(SHOW_CURSOR);
+}
+
+// ── revealLines ──────────────────────────────────────────────────────────────
+
+/**
+ * Print an array of strings with per-line delay.
+ * Hides cursor during reveal, restores after.
+ */
+export async function revealLines(lines, delayMs = 40) {
+  process.stdout.write(HIDE_CURSOR);
+  for (const line of lines) {
+    process.stdout.write(line + '\n');
+    await sleep(delayMs);
+  }
+  process.stdout.write(SHOW_CURSOR);
+}
+
+// ── customSpinner ────────────────────────────────────────────────────────────
+
+/**
+ * Create a spinner using custom frame arrays.
+ *
+ * Returns:
+ *   spinner.start(label)   — hide cursor, begin frame loop on current line
+ *   spinner.update(label)  — swap label text, continue frames
+ *   spinner.stop(finalMsg) — halt loop, clear line, print finalMsg (optional), restore cursor
+ *   spinner.pause()        — halt interval, clear current spinner line (for file output interleaving)
+ *   spinner.resume()       — restart interval on current line position
+ *
+ * finalMsg in stop() is optional — omit or pass '' to clear with no output.
+ */
+export function customSpinner(frames = ['◐', '◓', '◑', '◒'], intervalMs = 80) {
+  let timer = null;
+  let frameIdx = 0;
+  let currentLabel = '';
+
+  function render() {
+    const frame = pc.cyan(frames[frameIdx % frames.length]);
+    process.stdout.write(CLEAR_LINE + '  ' + frame + '  ' + currentLabel);
+    frameIdx++;
+  }
+
+  return {
+    start(label = '') {
+      currentLabel = label;
+      frameIdx = 0;
+      process.stdout.write(HIDE_CURSOR);
+      render();
+      timer = setInterval(render, intervalMs);
+    },
+    update(label) {
+      currentLabel = label;
+    },
+    pause() {
+      if (timer) { clearInterval(timer); timer = null; }
+      process.stdout.write(CLEAR_LINE);
+    },
+    resume() {
+      render();
+      timer = setInterval(render, intervalMs);
+    },
+    stop(finalMsg = '') {
+      if (timer) { clearInterval(timer); timer = null; }
+      process.stdout.write(CLEAR_LINE);
+      if (finalMsg) process.stdout.write(finalMsg + '\n');
+      process.stdout.write(SHOW_CURSOR);
+    },
+  };
+}
+
+// splash() and celebration() added in Task 4

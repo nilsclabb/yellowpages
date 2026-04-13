@@ -37,9 +37,9 @@ Hook-based activation is more robust than CLAUDE.md injection: it fires reliably
 
 These two files serve different purposes and are **not** duplicates:
 
-- **`rules/caveman-activate.md`** — the lean canonical rule body (9 lines). This is what `hooks/caveman-activate.js` reads at runtime and emits as system context. It is also what the installer reads to generate agent-specific always-on files. Never edit agent-specific copies — edit this file only.
+- **`rules/caveman-activate.md`** — lives at repo root (`<repo-root>/rules/caveman-activate.md`). New top-level `rules/` directory. The lean canonical rule body (9 lines). This is what `hooks/caveman-activate.js` reads at runtime and emits as system context. It is also what the installer reads to generate agent-specific always-on files. Never edit agent-specific copies — edit this file only.
 
-- **`references/behavior.md`** — the human-facing skill reference. A superset of `rules/caveman-activate.md`: includes the full rule body plus intensity level definitions with before/after examples, auto-clarity trigger list, and boundary rule explanations. Not read by the hook at runtime — read by the developer and agent when understanding or modifying caveman behavior.
+- **`.agents/skills/yellowpages/caveman/references/behavior.md`** — the human-facing skill reference. A superset of `rules/caveman-activate.md`: includes the full rule body plus intensity level definitions with before/after examples, auto-clarity trigger list, and boundary rule explanations. Not read by the hook at runtime — read by the developer and agent when understanding or modifying caveman behavior.
 
 ### Activation Per Agent
 
@@ -103,7 +103,7 @@ skills/yellowpages/caveman/              Publishable copy (mirrors .agents versi
 ```
 packages/yp-stack/src/install.js         Add caveman install step + installCaveman(platform) + uninstallCaveman(platform)
 .agents/project-context.md               Add one line: caveman active by default; see skills/yellowpages/caveman/SKILL.md to toggle
-.agents/skills/yellowpages/INDEX.md      Add caveman entry (29 → 30 lines, within ≤30 budget)
+.agents/skills/yellowpages/INDEX.md      Add caveman entry to the Governance table (29 → 30 lines, within ≤30 budget). No new section header needed.
 README.md                                Add Credits section attributing Julius Brussee / caveman
 ```
 
@@ -150,6 +150,7 @@ Full command reference. Contains:
 - Mode persistence rules
 - Per-agent notes (hook-tracked vs natural language)
 - **Persistence asymmetry:** Claude Code persists "off" until next SessionStart resets it to full; all other agents reset to caveman-on at the start of every session because the always-on rule file re-activates them. Developer cannot persistently disable caveman on non-Claude Code agents without removing the rule file.
+- **Standalone install/uninstall:** how to manually wire or remove caveman on Claude Code via `bash hooks/install.sh` and `bash hooks/uninstall.sh`, for developers who are not using `npx yp-stack`
 
 ### `references/credit.md`
 
@@ -207,8 +208,21 @@ Calls `uninstallCaveman(platform)` which:
 
 Three additions only — no changes to `platforms.js` or existing install logic:
 1. New prompt step after skill install
-2. `installCaveman(platform)` function
+2. `installCaveman(platform)` function — carries its own internal platform-to-path lookup table hardcoded in `install.js` (the existing `platforms.js` structure does not carry caveman rule file paths). No changes to `platforms.js`.
 3. `uninstallCaveman(platform)` function — exposed via `npx yp-stack --uninstall caveman`
+
+**`installCaveman` internal path map (in `install.js`):**
+
+| `platform.value` | Rule file path written |
+|---|---|
+| `claude` | `~/.claude/hooks/` (handled by `hooks/install.sh`) |
+| `cursor` | `.cursor/rules/caveman.mdc` |
+| `windsurf` | `.windsurf/rules/caveman.md` |
+| `cline` | `.clinerules/caveman.md` |
+| `roo` | `.roo/rules/caveman.md` |
+| `opencode` | `.opencode/rules/caveman.md` |
+| `copilot` | `.github/copilot-instructions.md` (append with markers) |
+| `generic` | Print snippet to stdout, no file written |
 
 ---
 
@@ -230,13 +244,17 @@ Code/commits/PRs: normal formatting.
 
 ---
 
-## Hook Safety Rules
+## Script & Hook Safety Rules
 
-All hook files must:
+All hook files (`caveman-activate.js`, `caveman-mode-tracker.js`) must:
 - Silent-fail on all filesystem errors (try/catch everything)
 - Never block session start under any failure condition
-- Never write to files outside `~/.claude/` (flag file) and `~/.claude/hooks/` (hook files)
+- Never write to files outside `~/.claude/` (flag file only)
 - **Fallback rule body:** if `rules/caveman-activate.md` is missing or unreadable at runtime, `caveman-activate.js` emits a hardcoded copy of the rule body baked into the hook file itself — caveman is never silently disabled by a missing source file
+
+Installer scripts (`install.sh`, `uninstall.sh`) must:
+- Only read/write `~/.claude/settings.json`, `~/.claude/hooks/`, and `~/.claude/.caveman-active`
+- Never modify files outside `~/.claude/`
 
 ---
 

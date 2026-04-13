@@ -48,3 +48,4 @@ This file is the "constitution" for all agents working in this repo. Read it at 
 - Append session learnings to `.agents/state/learnings.jsonl` at the end of any session where meaningful work was done
 - Write gate status to `.agents/state/gates/<workflow>.json` after any multi-step workflow completes
 - Caveman terse mode is active by default. See `.agents/skills/yellowpages/caveman/SKILL.md` to toggle or read about intensity levels.
+- Before any task touching `packages/yp-stack/` is marked complete, run `bun lint && bun fmt:check` inside that package and confirm clean output

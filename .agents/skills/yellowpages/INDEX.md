@@ -18,6 +18,7 @@ Master listing for this repo. Routes to both the publishable yellowpages skill a
 | `ui-component-system` | "new component", "styling", "design system", "dark mode" | [ui-component-system/SKILL.md](ui-component-system/SKILL.md) |
 | `monorepo-setup` | "setup project", "workspace", "build pipeline", "deploy" | [monorepo-setup/SKILL.md](monorepo-setup/SKILL.md) |
 | `caveman` | "terse mode", "caveman", "toggle verbosity", "/caveman" | [caveman/SKILL.md](caveman/SKILL.md) |
+| `react-patterns` | "useEffect", "form sync", "form state", "key-based remount", "react pattern" | [skills/yellowpages/react-patterns/SKILL.md](../../../skills/yellowpages/react-patterns/SKILL.md) |
 
 ## Governance (this repo only)
 

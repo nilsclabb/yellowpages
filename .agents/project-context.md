@@ -49,3 +49,7 @@ This file is the "constitution" for all agents working in this repo. Read it at 
 - Write gate status to `.agents/state/gates/<workflow>.json` after any multi-step workflow completes
 - Caveman terse mode is active by default. See `.agents/skills/yellowpages/caveman/SKILL.md` to toggle or read about intensity levels.
 - Before any task touching `packages/yp-stack/` is marked complete, run `bun lint && bun fmt:check` inside that package and confirm clean output
+
+## React Coding Rules
+
+- **Do not use `useEffect` to sync server data into form state.** Use key-based remounting instead: extract a dedicated edit-form component, pass server data as `initialData`, and key it on the entity ID. See skill for full rationale, before/after code, and edge cases: [`.agents/skills/yellowpages/react-patterns/SKILL.md`](.agents/skills/yellowpages/react-patterns/SKILL.md)

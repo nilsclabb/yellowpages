@@ -24,7 +24,14 @@ When exploring an unfamiliar codebase:
 
 ## Documentation Navigation
 
-Planning documents live at:
+**Committed plans** (repo-persistent, visible to future agents):
+
+```
+docs/superpowers/plans/YYYY-MM-DD-NN-name.md
+```
+
+**Ephemeral plans** (session-scoped):
+
 ```
 <appDataDir>/brain/<conversation-id>/
 ├── implementation_plan.md
@@ -32,7 +39,9 @@ Planning documents live at:
 └── walkthrough.md
 ```
 
-To find context from past conversations, check KI (Knowledge Items) summaries first, then conversation logs. Read `overview.txt` in a conversation log only when a KI is insufficient.
+When picking up work from a prior session, check `docs/superpowers/plans/`
+first. To find context from past conversations, check KI summaries first,
+then conversation logs.
 
 ## INDEX.md Usage
 

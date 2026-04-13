@@ -1984,8 +1984,8 @@ Content of `packages/yp-stack/src/skills-manager.js`:
 /**
  * skills-manager.js — YP Skills Manager installer for yp-stack
  *
- * Exports installSkillsManager(platform, skillPathAbsolute) and
- * uninstallSkillsManager(platform, skillPathAbsolute).
+ * Exports installSkillsManager(platform, cwd) and
+ * uninstallSkillsManager(platform, cwd).
  *
  * installSkillsManager is called from index.js after installFiles —
  * same call-site pattern as installCaveman.

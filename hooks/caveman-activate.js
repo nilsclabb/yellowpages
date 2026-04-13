@@ -17,7 +17,7 @@ import os from 'node:os';
 const FLAG_FILE = path.join(os.homedir(), '.claude', '.caveman-active');
 
 // Rule body baked in. Keep in sync with rules/caveman-activate.md.
-// Used as-is — no filesystem read at runtime (hook runs from ~/.claude/hooks/).
+// Used as fallback if ~/.claude/rules/caveman-activate.md is missing.
 const RULE_BODY = `Respond terse like smart caveman. All technical substance stay. Only fluff die.
 Drop: articles (a/an/the), filler (just/really/basically), pleasantries, hedging.
 Fragments OK. Short synonyms. Technical terms exact. Code unchanged.
@@ -26,15 +26,25 @@ Switch level: /caveman lite|full|ultra
 Stop: "stop caveman" or "normal mode"
 Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
 Boundaries: written artifacts (skills, specs, docs, reference files) NEVER caveman.
-Code/commits/PRs: normal formatting.`;
+Code/commits/PRs: normal formatting.
+`;
 
 try {
   // Always reset to full on SessionStart — spec: "Resets to full on next session start"
-  // (stop caveman deletes the flag; /caveman lite writes 'lite' — both reset here)
   fs.mkdirSync(path.dirname(FLAG_FILE), { recursive: true });
   fs.writeFileSync(FLAG_FILE, 'full', 'utf-8');
+
+  // Try to read rule body from installed source file; fall back to baked-in constant
+  let ruleBody = RULE_BODY;
+  try {
+    const rulesPath = path.join(os.homedir(), '.claude', 'rules', 'caveman-activate.md');
+    ruleBody = fs.readFileSync(rulesPath, 'utf-8').trim();
+  } catch {
+    // File missing or unreadable — use baked-in fallback above
+  }
+
   // Emit to stdout — Claude Code captures this as system context (invisible to user)
-  process.stdout.write(RULE_BODY + '\n');
+  process.stdout.write(ruleBody + '\n');
 } catch {
   // Silent fail — never block session start
 }

@@ -20,6 +20,9 @@ echo "  ✓ Hook files removed"
 rm -f "$FLAG_FILE"
 echo "  ✓ Flag file removed"
 
+# Remove installed rules file
+rm -f "$HOME/.claude/rules/caveman-activate.md"
+
 # Clean settings.json
 if [ -f "$SETTINGS" ]; then
   node --input-type=module << 'NODEEOF'

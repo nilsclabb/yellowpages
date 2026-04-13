@@ -3,6 +3,7 @@ import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import figlet from 'figlet';
 import gradient from 'gradient-string';
+import { createRequire } from 'module';
 
 // ── Cursor restore on Ctrl+C ────────────────────────────────────────────────
 process.on('SIGINT', () => {
@@ -141,4 +142,84 @@ export function customSpinner(frames = ['◐', '◓', '◑', '◒'], intervalMs 
   };
 }
 
-// splash() and celebration() added in Task 4
+// ── VERSION ──────────────────────────────────────────────────────────────────
+const _require = createRequire(import.meta.url);
+const { version: VERSION } = _require('../package.json');
+
+// ── splash ───────────────────────────────────────────────────────────────────
+
+/**
+ * Full opening sequence: clear, ASCII art header, typewriter tagline, version badge.
+ * Non-TTY: prints plain version line only.
+ *
+ * @param {boolean} isInteractive
+ */
+export async function splash(isInteractive) {
+  if (!isInteractive) {
+    console.log(`yp-stack v${VERSION}`);
+    return;
+  }
+
+  // Soft clear (preserve scrollback)
+  process.stdout.write('\x1B[2J\x1B[H');
+  await sleep(80);
+
+  // ASCII art header
+  process.stdout.write(HIDE_CURSOR);
+  const ascii = figlet.textSync('yp-stack', { font: 'ANSI Shadow' });
+  const yellowToOrange = gradient(['#f9d71c', '#ff8c00', '#ff6b00']);
+  console.log(yellowToOrange(ascii));
+
+  // Tagline typewriter
+  process.stdout.write('  ');
+  await typewriter(pc.bold('Agent skills & workflows, installed.'), 28);
+
+  // Version + divider
+  console.log('  ' + pc.dim(`v${VERSION} · npx yp-stack`));
+  console.log('  ' + pc.dim('─'.repeat(50)));
+  console.log();
+
+  process.stdout.write(SHOW_CURSOR);
+}
+
+// ── celebration ──────────────────────────────────────────────────────────────
+
+/**
+ * Full outro sequence: DONE ASCII art, next-steps note, sign-off.
+ * Non-TTY: prints plain next-steps list and done message.
+ *
+ * @param {string[]} nextSteps  Array of formatted strings for the note body
+ * @param {boolean} isInteractive
+ */
+export async function celebration(nextSteps, isInteractive) {
+  if (!isInteractive) {
+    console.log('\nNext steps:');
+    for (const step of nextSteps) {
+      console.log('  ' + step);
+    }
+    console.log('\nDone! Yellowpages is ready.');
+    return;
+  }
+
+  console.log();
+
+  // Beat 1: DONE ASCII art, line-by-line reveal
+  const doneAscii = figlet.textSync('DONE!', { font: 'Small' });
+  const greenTeal = gradient(['#00b09b', '#96c93d']);
+  const doneLines = greenTeal(doneAscii).split('\n');
+  await revealLines(doneLines, 40);
+
+  console.log();
+
+  // Beat 2: Next steps note box (uses @clack for consistent styling)
+  p.note(nextSteps.join('\n'), "What's next?");
+
+  console.log();
+
+  // Beat 3: Sign-off
+  process.stdout.write(
+    '  ' + pc.bold(pc.yellow('◆')) + '  ' +
+    gradient.atlas('Yellowpages is ready. Go build something great.') + '\n'
+  );
+  console.log();
+}

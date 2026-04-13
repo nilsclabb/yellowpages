@@ -114,15 +114,24 @@ packages/yp-stack/src/
 ### Modified files
 
 ```
-packages/yp-stack/src/install.js    add skills manager to core install flow
-packages/yp-stack/src/index.js      install skills manager before caveman prompt
-packages/yp-stack/bin/cli.js        add --uninstall skills-manager
-packages/yp-stack/src/content.js    bundle new skill files (via npm run bundle)
-hooks/install.sh                    also copy skills-manifest.js
-hooks/uninstall.sh                  also remove skills-manifest.js
-.agents/skills/yellowpages/INDEX.md add 16 new skill entries
-skills/yellowpages/INDEX.md         add 16 new skill entries
+packages/yp-stack/src/index.js      call installSkillsManager before caveman prompt (same pattern as installCaveman)
+packages/yp-stack/bin/cli.js        add --uninstall skills-manager (same pattern as --uninstall caveman)
+packages/yp-stack/src/content.js    add 16 new skill files via npm run bundle (auto-generated from .agents/skills/)
+hooks/install.sh                    add: copy skills-manifest.js to ~/.claude/hooks/; register SessionStart hook
+hooks/uninstall.sh                  add: rm -f ~/.claude/hooks/skills-manifest.js; strip hook entry from settings.json
+.agents/skills/yellowpages/INDEX.md add 16 rows (current: 30 lines → 46 lines — INDEX budget requires splitting into sections or a new index file; see INDEX budget note)
+skills/yellowpages/INDEX.md         add 16 rows (current: 16 lines → 32 lines)
 ```
+
+### INDEX.md budget note
+
+The `.agents/skills/yellowpages/INDEX.md` yellowpages rule is ≤30 lines. Adding 16 rows to an already 30-line file would push it to 46 lines — exceeding budget. Two options:
+
+**Option A (recommended):** Create a separate `SKILLS-INDEX.md` for the new utility skills (alongside the existing `INDEX.md`). `INDEX.md` keeps its current structure; `SKILLS-INDEX.md` lists the 16 new utility skills. Both files ≤30 lines.
+
+**Option B:** Redesign `INDEX.md` to use a more compact format (one-word trigger, abbreviated descriptions) to stay under 30 lines. Higher maintenance burden.
+
+The implementer must choose Option A or B before writing the INDEX entries. Both `INDEX.md` files (`.agents/` and `skills/`) receive the same treatment.
 
 ---
 
@@ -147,14 +156,20 @@ Checks for: `.agents/` folder, `CLAUDE.md`, `AGENTS.md`, `yellowpages.config.jso
 [YP v0.1.0 · global: caveman✓ convex-patterns✓ frontend-arch✓ preferred-stack✓ ui-components✓ monorepo✓]
 [GLOBAL: yellowpages(6) superpowers(15) other(0) · overlap: brainstorming]
 [PROJECT: .agents/✓ CLAUDE.md✓ yp-config✓ platform:claude · TASKS.md: 3 tasks, 1 in-progress]
-[COMMANDS: /help /status /context /session /diagnose /scaffold /validate /compress /manage /remember /forget /notes /reload /commit /handoff /tasks /auto-plan]
+[COMMANDS: /help /status /context /session /diagnose /scaffold /validate /compress /manage /remember /forget /notes /reload /tasks /auto-plan]
 ```
+
+**Multi-platform path resolution:**
+The hook reads `yellowpages.config.json` from `process.cwd()` at runtime to find the platform and installed skill path. If the config is absent, falls back to `~/.claude/skills/` (Claude Code default). This ensures the manifest reflects the correct skill directory regardless of platform.
+
+**Bundling:**
+`skills-manifest.js` hook file content is a string constant in `packages/yp-stack/src/skills-manager.js` (same pattern as `HOOK_ACTIVATE`/`HOOK_TRACKER` in `caveman.js`). The 16 skill files are added to the `FILES` map in `content.js` via `npm run bundle` (existing script — auto-generates `content.js` from the `.agents/skills/` directory). `skills-manifest.js` is bundled as a string in `skills-manager.js`, not via `npm run bundle`.
 
 **Safety rules (same as caveman-activate.js):**
 - Silent-fail on all filesystem errors
 - Never block session start
 - Read-only scan — never modifies files
-- Hardcoded fallback manifest if scan fails
+- Hardcoded fallback manifest if scan fails: emits `[YP · manifest scan failed · /diagnose to check]`
 
 ---
 
@@ -223,8 +238,8 @@ Actions:
 | `yp-help` | `/help` | One-shot reference card: all yp-stack commands, caveman modes, installed skills |
 | `yp-status` | `/status` | Session snapshot: caveman mode, active skills, project context, hook health |
 | `yp-context` | `/context` | Full transparency: everything injected into this session (CLAUDE.md summary, .agents/ state, manifest, hooks) |
-| `yp-session` | `/session` | Model in use, tokens consumed, context window remaining |
-| `yp-reload` | `/reload` | Re-read CLAUDE.md, re-inject manifest, refresh skill list — without restarting session |
+| `yp-session` | `/session` | Model in use, estimated context pressure (based on conversation length heuristic — exact token counts not available to the agent), active hooks, caveman mode |
+| `yp-reload` | `/reload` | Print current CLAUDE.md contents + manifest state to conversation context. Does NOT re-fire the SessionStart hook (impossible mid-session) — instead Claude re-reads the files via tool use and shows current state |
 | `yp-notes` | `/notes` | Print current CLAUDE.md contents — make implicit agent memory explicit |
 | `yp-remember` | `/remember <fact>` | Append fact to CLAUDE.md as a bullet under a `## Agent Notes` section |
 | `yp-forget` | `/forget <fact>` | Remove matching bullet from CLAUDE.md Agent Notes section |
@@ -236,6 +251,18 @@ Runs the existing `.agents/workflows/create-skill/` 4-step sequence. Creates dir
 
 **`validate-skill`** (`/validate skill <path>`)
 Runs `.agents/checklists/skill-quality.md` against the target skill. Reports pass/fail per criterion with line numbers. Does not fix — use `/diagnose` for auto-remediation.
+
+**`yp-remember`** (`/remember <fact>`)
+Appends fact as a bullet under `## Agent Notes` section of `CLAUDE.md`. Edge cases:
+- `CLAUDE.md` absent → create it with the `## Agent Notes` section and the bullet
+- `## Agent Notes` section absent → append it to end of existing `CLAUDE.md`
+- Duplicate fact (exact match) → no-op, inform developer
+
+**`yp-forget`** (`/forget <fact>`)
+Removes matching bullet from `## Agent Notes`. Edge cases:
+- `CLAUDE.md` or `## Agent Notes` absent → no-op, inform developer
+- No exact match → fuzzy search; if ambiguous (multiple partial matches), show candidates and ask which to remove
+- Exact match → remove bullet; if section becomes empty, remove the section header too
 
 **`yp-compress`** (`/compress <file>`)
 Rewrites target file (typically CLAUDE.md, project-context.md) into caveman-style terse prose. Cuts input tokens ~46%. Saves original as `<filename>.original.md`. Technical terms, code blocks, URLs, headings, dates pass through untouched. Retries up to 2x on failure with targeted patches.
@@ -340,6 +367,16 @@ _Started: YYYY-MM-DD · Branch: <branch-name>_
 
 **Parallel detection**: tasks with no shared dependencies and satisfied deps can be claimed simultaneously by different agents.
 
+### TASKS.md format rules (parser contract)
+
+- **Task names must be unique** within a file. Duplicate names produce undefined dependency resolution behavior.
+- **`depends:` values are case-sensitive** and must match task names exactly as written after the task marker (e.g. `depends: Task 1` must match `- [ ] Task 1:`).
+- **Missing dependency**: if a named dependency does not exist in the file, the task is treated as `[!]` (blocked) with `blocked-reason: dependency "X" not found`.
+- **`depends:` is a single comma-separated line** — no multi-line syntax.
+- **`blocked-reason:` is optional** when state is `[!]` but strongly recommended. Absent = unspecified block.
+- **Indentation** of metadata lines (`depends:`, `worktree:`, `blocked-reason:`) uses exactly 2 spaces. Agents must write consistent indentation.
+- **Task name** is everything after the state marker and space, up to the end of the line. Optional trailing colon is stripped: `- [ ] Task 1: description` → name is `Task 1`.
+
 ### Agent pickup protocol
 
 1. Read `TASKS.md`
@@ -351,6 +388,8 @@ _Started: YYYY-MM-DD · Branch: <branch-name>_
 7. Mark `[X]`, remove worktree entry from task
 
 ### Worktree merge-back — non-negotiable
+
+**Enforcement is instructional, not mechanical.** No filesystem or git-level gate prevents marking `[X]` without merging. The three-location declaration below maximises the chance a well-behaved agent follows the rule. A misbehaving or distracted agent can still mark `[X]` without merging — this is an accepted limitation of text-based coordination.
 
 Declared in three locations in `yp-tasks/`:
 
@@ -399,6 +438,33 @@ If `TASKS.md` present in CWD, the manifest line includes:
 ```
 [PROJECT: .agents/✓ CLAUDE.md✓ · TASKS.md: 4 tasks (1 done, 1 in-progress, 2 pending)]
 ```
+
+---
+
+## `packages/yp-stack/src/skills-manager.js` Specification
+
+### `installSkillsManager(platform, cwd)`
+
+**Called from `index.js`** after `installFiles` completes (same call-site pattern as `installCaveman`). Not from `install.js`.
+
+Responsibilities (all idempotent — safe to call multiple times):
+
+1. **Write hook file** — writes `skills-manifest.js` content (bundled string constant) to `~/.claude/hooks/skills-manifest.js`. Overwrites existing.
+2. **Register SessionStart hook** — patches `~/.claude/settings.json` using same `hasCmd` idempotency check as caveman. Command string: `` `node ${path.join(os.homedir(), '.claude', 'hooks', 'skills-manifest.js')}` ``
+3. **Write skill directories** — writes all 16 skill directory trees to the platform's skill path (from `installLocation` + `platformDef.skillPath`). Uses same `safeWrite` non-destructive pattern from `install.js` for existing projects.
+4. **`package.json` in hooks dir** — checks if `~/.claude/hooks/package.json` exists and contains `"type": "module"`. If absent or missing the field, writes/merges it. Does not depend on caveman having run first.
+
+### `uninstallSkillsManager(platform, cwd)`
+
+**Called from `bin/cli.js`** when `--uninstall skills-manager` flag detected (same pattern as `uninstallCaveman`).
+
+Responsibilities:
+
+1. Remove `~/.claude/hooks/skills-manifest.js`
+2. Strip `skills-manifest.js` SessionStart hook entry from `~/.claude/settings.json` using same `removeCmd` pattern as caveman uninstall
+3. Remove the 16 skill directories from the installed skill path. **Does NOT remove `yellowpages.config.json`** — that belongs to the core install.
+4. Copilot: wrap append in `<!-- yp-skills-manager:start -->`/`<!-- yp-skills-manager:end -->` markers (same pattern as caveman). Uninstall strips those markers.
+5. Generic/custom: print removal instructions to stdout.
 
 ---
 
@@ -458,6 +524,6 @@ All new skills follow yellowpages non-negotiables:
 - `/compress <file>` reduces file size by ≥30% while preserving all technical content
 - `/auto-plan` generates a valid `TASKS.md` with correct dependency declarations
 - Multiple agents can work from the same `TASKS.md` without claiming the same task
-- No agent can mark a task `[X]` without confirming worktree merge
+- A well-behaved agent following the skill instructions will not mark `[X]` without confirming worktree merge (enforcement is instructional — see worktree-protocol.md)
 - `skills-manifest.js` installs automatically with every `npx yp-stack` run
 - All 16 new skills pass the yellowpages quality checklist

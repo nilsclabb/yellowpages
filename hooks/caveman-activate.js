@@ -26,8 +26,7 @@ Switch level: /caveman lite|full|ultra
 Stop: "stop caveman" or "normal mode"
 Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
 Boundaries: written artifacts (skills, specs, docs, reference files) NEVER caveman.
-Code/commits/PRs: normal formatting.
-`;
+Code/commits/PRs: normal formatting.`;
 
 try {
   // Always reset to full on SessionStart — spec: "Resets to full on next session start"

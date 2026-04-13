@@ -40,6 +40,7 @@ The yellowpages system is the complete standard for how skills are created, auth
 | Track workflow state across sessions | [references/state.md](references/state.md) |
 | Write or read workflow artifact output paths | [references/artifact-paths.md](references/artifact-paths.md) |
 | Log or read cross-session learnings | [references/learnings.md](references/learnings.md) |
+| Look up a yellowpages term or concept | [references/encyclopedia.md](references/encyclopedia.md) |
 
 ## Quick Start — Create a Skill
 

@@ -160,3 +160,19 @@ Yellowpages builds on ideas from three projects that shaped how it thinks about 
 ## License
 
 MIT
+
+---
+
+## Credits
+
+### caveman
+The terse communication style used by agents working in this repo is
+directly inspired by and adopted from **[caveman](https://github.com/JuliusBrussee/caveman)**
+by [Julius Brussee](https://github.com/JuliusBrussee).
+
+> *why use many token when few token do trick*
+
+The hook architecture, rule body, toggle commands (`/caveman`, "stop caveman"),
+intensity levels (lite / full / ultra), and auto-clarity conventions are all
+caveman's work. We've packaged them into yellowpages' skill and install system.
+Go star the original. 🪨

@@ -1,40 +1,30 @@
-# Yellowpages Index
+# Internal Skills Index
 
-Master listing of everything in this repo. Read this before scanning individual files.
+Master listing for this repo. Routes to both the publishable yellowpages skill and project-specific stack skills.
 
-## Skills
+## Core Skill (publishable)
 
-| Skill | Triggers when... | Covers |
+| Skill | Triggers when... | Location |
 |---|---|---|
-| `yellowpages` | "create a skill", "new skill", "scaffold skill", "skill standard", "document plan", "agent persona", "workflow", "learnings", "state" | Complete standard: skill creation, authoring, packaging, design, navigation, documentation, agents, workflows, state, learnings |
+| `yellowpages` | "create a skill", "scaffold skill", "skill standard", "workflow", "learnings" | [skills/yellowpages/SKILL.md](../../../skills/yellowpages/SKILL.md) |
 
-## Agents (Personas)
+## Stack Skills (project-specific)
 
-| Persona | Load when... | Role |
+| Skill | Triggers when... | Read |
 |---|---|---|
-| `skill-author` | Authoring or auditing a skill | Creates yellowpages-compliant skills; refuses to mark complete on failing criteria |
+| `preferred-stack` | "what stack", "new project", "tech choice", "architecture decision" | [preferred-stack/SKILL.md](preferred-stack/SKILL.md) |
+| `convex-patterns` | "write a mutation", "convex schema", "backend function", "use node" | [convex-patterns/SKILL.md](convex-patterns/SKILL.md) |
+| `frontend-architecture` | "new page", "routing", "state management", "data fetching" | [frontend-architecture/SKILL.md](frontend-architecture/SKILL.md) |
+| `ui-component-system` | "new component", "styling", "design system", "dark mode" | [ui-component-system/SKILL.md](ui-component-system/SKILL.md) |
+| `monorepo-setup` | "setup project", "workspace", "build pipeline", "deploy" | [monorepo-setup/SKILL.md](monorepo-setup/SKILL.md) |
+| `caveman` | "terse mode", "caveman", "toggle verbosity", "/caveman" | [caveman/SKILL.md](caveman/SKILL.md) |
 
-## Workflows
+## Governance (this repo only)
 
-| Workflow | Produces |
-|---|---|
-| `create-skill` | A new yellowpages-compliant skill (4-step sequence) |
-
-## Checklists
-
-| Checklist | Verifies |
-|---|---|
-| `skill-quality` | A skill meets yellowpages standards |
-| `workflow-gates` | Required review gates have passed before marking a workflow complete |
-
-## Templates
-
-| Template | Produces |
-|---|---|
-| `skill-template` | A blank `SKILL.md` scaffold ready to fill |
-
----
-
-## Adding Items
-
-Add one row to the relevant table above. Keep each row to a single line. Index must stay ≤ 30 lines per section.
+| Resource | Type | Location |
+|---|---|---|
+| `skill-author` | Agent persona | [.agents/agents/skill-author.md](../../agents/skill-author.md) |
+| `create-skill` | Workflow (4-step) | [.agents/workflows/create-skill/](../../workflows/create-skill/WORKFLOW.md) |
+| `skill-quality` | Checklist | [.agents/checklists/skill-quality.md](../../checklists/skill-quality.md) |
+| `workflow-gates` | Checklist | [.agents/checklists/workflow-gates.md](../../checklists/workflow-gates.md) |
+| `skill-template` | Template | [.agents/templates/skill-template.md](../../templates/skill-template.md) |

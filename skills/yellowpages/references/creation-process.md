@@ -62,6 +62,12 @@ Validation checks:
 - Naming conventions and directory structure
 - Description completeness
 
+**Quality gate:** Before packaging, run in `packages/yp-stack/`:
+
+    cd packages/yp-stack && bun lint && bun fmt:check
+
+Both must exit 0. Fix any issues before running `package_skill.py`.
+
 ## Step 6 — Iterate
 
 After real usage, notice struggles or inefficiencies, then update SKILL.md or resources. The best improvements come immediately after using the skill, with fresh context on where it fell short.

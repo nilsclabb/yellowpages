@@ -103,7 +103,7 @@ skills/yellowpages/caveman/              Publishable copy (mirrors .agents versi
 ```
 packages/yp-stack/src/install.js         Add caveman install step + installCaveman(platform) + uninstallCaveman(platform)
 .agents/project-context.md               Add one line: caveman active by default; see skills/yellowpages/caveman/SKILL.md to toggle
-.agents/skills/yellowpages/INDEX.md      Add caveman entry to the Governance table (29 → 30 lines, within ≤30 budget). No new section header needed.
+.agents/skills/yellowpages/INDEX.md      Add caveman entry to the Stack Skills table (29 → 30 lines, within ≤30 budget). No new section header needed.
 README.md                                Add Credits section attributing Julius Brussee / caveman
 ```
 
@@ -201,28 +201,52 @@ Calls `uninstallCaveman(platform)` which:
 | Cline | Deletes `.clinerules/caveman.md` |
 | Roo Code | Deletes `.roo/rules/caveman.md` |
 | OpenCode | Deletes `.opencode/rules/caveman.md` |
-| GitHub Copilot | Strips `<!-- caveman:start -->` through `<!-- caveman:end -->` block from `.github/copilot-instructions.md` |
+| GitHub Copilot | Strips `<!-- caveman:start -->` through `<!-- caveman:end -->` block from `.github/copilot-instructions.md`; no-op if file does not exist |
 | Generic | Prints "remove the caveman snippet from your agent's system prompt" |
 
 ### `install.js` changes
 
 Three additions only — no changes to `platforms.js` or existing install logic:
-1. New prompt step after skill install
-2. `installCaveman(platform)` function — carries its own internal platform-to-path lookup table hardcoded in `install.js` (the existing `platforms.js` structure does not carry caveman rule file paths). No changes to `platforms.js`.
-3. `uninstallCaveman(platform)` function — exposed via `npx yp-stack --uninstall caveman`
+1. New `p.confirm` prompt step after the main install spinner completes
+2. `installCaveman(platform, cwd)` function — carries its own internal platform-to-path lookup table hardcoded in `install.js` (the existing `platforms.js` structure does not carry caveman rule file paths). No changes to `platforms.js`.
+3. `uninstallCaveman(platform, cwd)` function
 
 **`installCaveman` internal path map (in `install.js`):**
 
-| `platform.value` | Rule file path written |
+| `platform.value` | What `installCaveman` does |
 |---|---|
-| `claude` | `~/.claude/hooks/` (handled by `hooks/install.sh`) |
-| `cursor` | `.cursor/rules/caveman.mdc` |
-| `windsurf` | `.windsurf/rules/caveman.md` |
-| `cline` | `.clinerules/caveman.md` |
-| `roo` | `.roo/rules/caveman.md` |
-| `opencode` | `.opencode/rules/caveman.md` |
-| `copilot` | `.github/copilot-instructions.md` (append with markers) |
-| `generic` | Print snippet to stdout, no file written |
+| `claude` | Writes hook files directly to `~/.claude/hooks/` from bundled content (see "Rule body bundling" below) and patches `~/.claude/settings.json` — same actions as `hooks/install.sh` but from JS, no shell-out |
+| `cursor` | Writes `.cursor/rules/caveman.mdc` (with `alwaysApply: true` frontmatter) from bundled rule body |
+| `windsurf` | Writes `.windsurf/rules/caveman.md` (with `trigger: always_on` frontmatter) from bundled rule body |
+| `cline` | Writes `.clinerules/caveman.md` from bundled rule body |
+| `roo` | Writes `.roo/rules/caveman.md` from bundled rule body |
+| `opencode` | Writes `.opencode/rules/caveman.md` from bundled rule body |
+| `copilot` | Appends bundled rule body to `.github/copilot-instructions.md` inside `<!-- caveman:start -->` / `<!-- caveman:end -->` markers |
+| `generic` | Prints bundled rule body to stdout with instructions; no file written |
+
+### Rule body bundling
+
+The caveman rule body is bundled as a string constant in `packages/yp-stack/src/content.js` (alongside other existing bundled content). `installCaveman` reads from this bundled constant — it never reads from the filesystem at npm-run time, so it works whether or not `rules/caveman-activate.md` exists in the working directory.
+
+`rules/caveman-activate.md` in the repo serves two separate purposes:
+- Read by `hooks/caveman-activate.js` at Claude Code runtime (filesystem read with hardcoded fallback)
+- Source of truth for developers who clone the repo and use `hooks/install.sh` directly
+
+When the rule body changes, both `rules/caveman-activate.md` and the bundled constant in `content.js` must be updated together.
+
+### Uninstall entry point
+
+`bin/cli.js` checks `process.argv` before calling `main()`:
+
+```js
+if (process.argv.includes('--uninstall') && process.argv.includes('caveman')) {
+  // read platform from yellowpages.config.json if present, else prompt
+  // call uninstallCaveman(platform, cwd)
+  process.exit(0);
+}
+```
+
+If `yellowpages.config.json` exists and contains a `platform` field, use it. Otherwise prompt with the same `p.select` platform picker used in the install flow.
 
 ---
 
@@ -246,13 +270,18 @@ Code/commits/PRs: normal formatting.
 
 ## Script & Hook Safety Rules
 
-All hook files (`caveman-activate.js`, `caveman-mode-tracker.js`) must:
+**`hooks/caveman-activate.js` (SessionStart):**
 - Silent-fail on all filesystem errors (try/catch everything)
 - Never block session start under any failure condition
 - Never write to files outside `~/.claude/` (flag file only)
-- **Fallback rule body:** if `rules/caveman-activate.md` is missing or unreadable at runtime, `caveman-activate.js` emits a hardcoded copy of the rule body baked into the hook file itself — caveman is never silently disabled by a missing source file
+- **Fallback rule body:** if `rules/caveman-activate.md` is missing or unreadable, emits the hardcoded rule body baked into the hook file — caveman is never silently disabled by a missing source file
 
-Installer scripts (`install.sh`, `uninstall.sh`) must:
+**`hooks/caveman-mode-tracker.js` (UserPromptSubmit):**
+- Always exits with code 0 — a non-zero exit would block the user's prompt submission
+- Never writes to stdout — UserPromptSubmit hook stdout is interpreted by Claude Code as a prompt modifier; any output would alter the developer's message
+- Silent-fail on all filesystem errors (try/catch everything)
+
+**`hooks/install.sh` and `hooks/uninstall.sh`:**
 - Only read/write `~/.claude/settings.json`, `~/.claude/hooks/`, and `~/.claude/.caveman-active`
 - Never modify files outside `~/.claude/`
 

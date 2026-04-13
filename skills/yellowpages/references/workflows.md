@@ -37,4 +37,4 @@ Read the `WORKFLOW.md` first to see all steps, then open `step-01-*.md` and foll
 
 | Workflow | Produces |
 |---|---|
-| [create-skill](../../workflows/create-skill/WORKFLOW.md) | A new yellowpages-compliant skill |
+| `create-skill` | A new yellowpages-compliant skill (see `.agents/workflows/create-skill/`) |

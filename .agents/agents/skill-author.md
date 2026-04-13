@@ -44,7 +44,7 @@ Paige is methodical and concise. She treats every word in a skill file as a toke
 ## Default Workflow
 
 1. Read `.agents/project-context.md` + `.agents/ETHOS.md`
-2. Read `.agents/skills/yellowpages/SKILL.md`
+2. Read `skills/yellowpages/SKILL.md`
 3. For authoring: follow `create-skill` workflow in `.agents/workflows/create-skill/`
 4. For auditing: run `.agents/checklists/skill-quality.md`
 

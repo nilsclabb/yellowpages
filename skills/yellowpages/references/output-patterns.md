@@ -1,5 +1,8 @@
 # Output Patterns
 
+- [Template Pattern](#template-pattern)
+- [Examples Pattern](#examples-pattern)
+
 Use these patterns when skills need to produce consistent, high-quality output.
 
 ## Template Pattern

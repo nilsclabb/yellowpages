@@ -25,8 +25,8 @@ description: >
 
 | When you need to... | Read |
 |---|---|
-| [specific task or decision] | [references/topic-a.md](references/topic-a.md) |
-| [specific task or decision] | [references/topic-b.md](references/topic-b.md) |
+| [specific task or decision] | `references/topic-a.md` |
+| [specific task or decision] | `references/topic-b.md` |
 
 ## Quick Start
 

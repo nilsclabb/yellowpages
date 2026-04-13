@@ -58,7 +58,7 @@ nextStep: step-0N+1-<name>.md
 
 ## State Tracking
 
-Any artifact produced by a workflow should carry its progress in YAML frontmatter. See `.agents/skills/yellowpages/references/state.md` for the full state tracking standard.
+Any artifact produced by a workflow should carry its progress in YAML frontmatter. See `skills/yellowpages/references/state.md` for the full state tracking standard.
 
 ## Adding a New Workflow
 

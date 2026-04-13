@@ -73,7 +73,7 @@ skills/
 └── yellowpages/              ← Publishable skill (skills.sh discovery)
     ├── SKILL.md
     ├── INDEX.md
-    ├── references/           ← 14 reference files
+    ├── references/           ← 15 reference files
     └── scripts/
         ├── init_skill.py         ← Scaffold a new skill
         ├── package_skill.py      ← Package into .skill zip
@@ -83,7 +83,10 @@ packages/yp-stack/            ← NPM interactive installer
     ├── bin/cli.js
     └── src/
         ├── index.js              ← Interactive setup flow
-        └── platforms.js          ← Platform detection (8 agents)
+        ├── platforms.js          ← Platform detection (8 agents)
+        ├── install.js            ← File installation logic
+        ├── content.js            ← Bundled skill content
+        └── caveman.js            ← Caveman mode hook installer
 
 .agents/                      ← Governance layer for this repo
     ├── project-context.md        ← Repo constitution
@@ -91,7 +94,8 @@ packages/yp-stack/            ← NPM interactive installer
     ├── agents/                   ← Agent personas
     ├── workflows/                ← Multi-step workflows
     ├── checklists/               ← Quality gates
-    └── templates/                ← Blank scaffolds
+    ├── templates/                ← Blank scaffolds
+    └── state/                    ← Cross-session learnings and gate status
 ```
 
 ---
@@ -154,6 +158,12 @@ Yellowpages builds on ideas from three projects that shaped how it thinks about 
 - **[gstack](https://github.com/garrytan/gstack)** — for its opinionated approach to structuring AI agent capabilities as composable, discoverable units
 - **[superpowers](https://github.com/obra/superpowers)** — for demonstrating how shareable agent enhancements can be distributed and installed across different environments
 - **[pi code](https://github.com/badlogic/pi-mono)** — for its patterns around progressive disclosure and keeping agent context lean
+
+---
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR.
 
 ---
 

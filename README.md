@@ -131,6 +131,12 @@ python skills/yellowpages/scripts/quick_validate.py ./skills/my-skill
 
 The yellowpages skill itself is the canonical example. Start by reading `skills/yellowpages/SKILL.md`.
 
+If you encounter unfamiliar terms (cover page, routing file, ephemeral plan, gate, etc.), the glossary has you covered:
+
+```
+skills/yellowpages/references/encyclopedia.md
+```
+
 ---
 
 ## Install options
@@ -145,6 +151,21 @@ When you run `npx yp-stack`, you choose:
 
 ---
 
+## Development
+
+Quality scripts for `packages/yp-stack/`:
+
+```bash
+cd packages/yp-stack
+bun lint        # oxlint — 0 errors required
+bun fmt:check   # oxfmt  — all files must be formatted
+bun fmt         # auto-fix formatting
+```
+
+Both `bun lint` and `bun fmt:check` must pass before marking any task in that package complete.
+
+---
+
 ## Requirements
 
 - Node.js 18+
@@ -153,11 +174,12 @@ When you run `npx yp-stack`, you choose:
 
 ## Inspiration
 
-Yellowpages builds on ideas from three projects that shaped how it thinks about agent skill systems:
+Yellowpages builds on ideas from projects that shaped how it thinks about agent skill systems:
 
 - **[gstack](https://github.com/garrytan/gstack)** — for its opinionated approach to structuring AI agent capabilities as composable, discoverable units
 - **[superpowers](https://github.com/obra/superpowers)** — for demonstrating how shareable agent enhancements can be distributed and installed across different environments
 - **[pi code](https://github.com/badlogic/pi-mono)** — for its patterns around progressive disclosure and keeping agent context lean
+- **[lawn](https://github.com/pingdotgg/lawn)** and **[t3code](https://github.com/pingdotgg/t3code)** (ping.gg) — for their patterns around quality gates, committed plan conventions, project-level agent philosophy docs, and the encyclopedia/glossary approach to self-documenting agent systems
 
 ---
 

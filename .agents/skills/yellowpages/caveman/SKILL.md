@@ -35,7 +35,7 @@ confirmations · user confused or repeating question. Resumes after.
 
 | File | When to read |
 |---|---|
-| `references/behavior.md` | Modifying the ruleset or understanding what the hook injects |
+| `references/behavior.md` | Modifying the ruleset, understanding what the hook injects, or reviewing all auto-clarity triggers |
 | `references/toggle.md` | Full command reference, intensity levels, per-agent notes, standalone install |
 | `references/credit.md` | Updating attribution or adding to README |
 

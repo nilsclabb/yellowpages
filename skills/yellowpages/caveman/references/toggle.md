@@ -16,7 +16,7 @@
 ### Claude Code
 Tracked via flag file `~/.claude/.caveman-active`. Persists across turns within
 a session. "stop caveman" deletes the flag. Next SessionStart resets to `full` —
-there is no cross-session off state.
+there is no cross-session off state. Caveman re-activates on every new session.
 
 ### All Other Agents (Cursor, Windsurf, Cline, Roo, Copilot, OpenCode)
 "stop caveman" is session-local. The always-on rule file re-activates caveman

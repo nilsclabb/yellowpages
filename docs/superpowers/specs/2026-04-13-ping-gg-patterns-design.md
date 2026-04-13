@@ -79,9 +79,9 @@ Agents should check `docs/superpowers/plans/` when they need to understand past 
 **Problem:** Step 5 (Package) and Step 6 (Iterate) contain no quality gate check. Agents can complete a skill without confirming the surrounding code is clean.
 
 **Change:** Add to Step 5, before packaging:
-> "If the package containing this skill has `lint` and `fmt:check` scripts, run both and confirm clean output. Fix any issues before proceeding."
+> "Run `bun lint && bun fmt:check` inside `packages/yp-stack/` and confirm clean output. Fix any issues before proceeding."
 
-This mirrors t3code's mandatory `bun fmt && bun lint && bun typecheck` completion requirement — adapted for yellowpages's JS toolchain.
+This mirrors t3code's mandatory `bun fmt && bun lint && bun typecheck` completion requirement — adapted for yellowpages's JS toolchain. Phrased unconditionally because after 2.1/2.2 land these scripts always exist.
 
 ---
 

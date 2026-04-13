@@ -50,3 +50,15 @@ When referencing sub-files, include a one-line reason:
 ```
 
 This lets an agent decide *before* opening a file whether it's relevant to the current task.
+
+## Project-Level Agent Context
+
+When building or installing skills for a project, that project should have:
+
+**`.agents/project-context.md`** (or `AGENTS.md`) containing:
+- 4-principle philosophy adapted to the domain (e.g. Performance / Reliability / Convenience / Security)
+- Explicit quality gate requirements (e.g. "run `bun lint && bun fmt:check` before marking work done")
+
+**`CLAUDE.md`** for any project with a UI: colors, typography, component patterns, do/don't.
+
+These files are read at session start and govern all decisions — they are not skills.

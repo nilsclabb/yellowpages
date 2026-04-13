@@ -56,15 +56,16 @@ function safeWrite(absolutePath, content, nonDestructive) {
  * @param {'full'|'skill'|'minimal'} options.scope
  * @param {'new'|'existing'|'monorepo'} options.projectType
  * @param {boolean} options.stateTracking
+ * @param {((absPath: string, status: 'created'|'skipped') => void) | null} [onFile]
+ *   Called immediately after each file write with the absolute path and status.
+ *   Callers should apply displayPath() before rendering to terminal.
+ *   Does NOT fire for learnings.jsonl (handled separately after the main loops).
  * @returns {{ created: string[], skipped: string[] }}
  */
-export function installFiles({
-  skillPathAbsolute,
-  governancePath,
-  scope,
-  projectType,
-  stateTracking,
-}) {
+export function installFiles(
+  { skillPathAbsolute, governancePath, scope, projectType, stateTracking },
+  onFile = null,
+) {
   const nonDestructive = projectType === "existing" || projectType === "monorepo";
   const { skillKeys, governanceKeys } = resolveFileList(scope, stateTracking);
 
@@ -77,6 +78,7 @@ export function installFiles({
     const dest = path.join(skillPathAbsolute, "yellowpages", tail);
     const status = safeWrite(dest, FILES[key], nonDestructive);
     (status === "created" ? created : skipped).push(dest);
+    if (onFile) onFile(dest, status);
   }
 
   // Governance files → <governancePath>/...
@@ -84,9 +86,11 @@ export function installFiles({
     const dest = path.join(governancePath, key);
     const status = safeWrite(dest, FILES[key], nonDestructive);
     (status === "created" ? created : skipped).push(dest);
+    if (onFile) onFile(dest, status);
   }
 
-  // Create empty learnings.jsonl if state tracking enabled
+  // Create empty learnings.jsonl if state tracking enabled.
+  // Does NOT call onFile — appears in Act 3 count summary only.
   if (stateTracking) {
     const learningsPath = path.join(governancePath, "state", "learnings.jsonl");
     if (!fs.existsSync(learningsPath)) {

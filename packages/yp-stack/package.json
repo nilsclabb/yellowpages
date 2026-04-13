@@ -2,7 +2,22 @@
   "name": "yp-stack",
   "version": "0.1.0",
   "description": "Install the yellowpages skill system for AI agents",
-  "type": "module",
+  "keywords": [
+    "agents",
+    "ai",
+    "claude",
+    "copilot",
+    "cursor",
+    "scaffold",
+    "skills",
+    "windsurf",
+    "yellowpages"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nilsclabb/yellowpages"
+  },
   "bin": {
     "yp-stack": "bin/cli.js"
   },
@@ -10,31 +25,23 @@
     "bin",
     "src"
   ],
+  "type": "module",
   "scripts": {
     "bundle": "node scripts/bundle-content.js",
-    "prepublishOnly": "node scripts/bundle-content.js"
+    "prepublishOnly": "node scripts/bundle-content.js",
+    "lint": "oxlint src",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt . --check"
   },
   "dependencies": {
     "@clack/prompts": "^0.10.0",
     "picocolors": "^1.1.1"
   },
+  "devDependencies": {
+    "oxfmt": "^0.45.0",
+    "oxlint": "^1.60.0"
+  },
   "engines": {
     "node": ">=18"
-  },
-  "keywords": [
-    "ai",
-    "agents",
-    "skills",
-    "claude",
-    "cursor",
-    "windsurf",
-    "copilot",
-    "scaffold",
-    "yellowpages"
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/nilsclabb/yellowpages"
   }
 }

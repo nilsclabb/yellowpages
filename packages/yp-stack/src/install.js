@@ -1,8 +1,8 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { FILES } from './content.js';
+import fs from "node:fs";
+import path from "node:path";
+import { FILES } from "./content.js";
 
-const SKILL_PREFIX = 'skills/yellowpages/';
+const SKILL_PREFIX = "skills/yellowpages/";
 
 const SKILL_KEYS = Object.keys(FILES).filter((k) => k.startsWith(SKILL_PREFIX));
 const GOVERNANCE_KEYS = Object.keys(FILES).filter((k) => !k.startsWith(SKILL_PREFIX));
@@ -12,15 +12,15 @@ function resolveFileList(scope, stateTracking) {
   let governanceKeys;
 
   switch (scope) {
-    case 'full':
+    case "full":
       skillKeys = [...SKILL_KEYS];
       governanceKeys = [...GOVERNANCE_KEYS];
       break;
-    case 'skill':
+    case "skill":
       skillKeys = [...SKILL_KEYS];
       governanceKeys = [];
       break;
-    case 'minimal':
+    case "minimal":
       skillKeys = SKILL_KEYS.filter((k) => k === `${SKILL_PREFIX}SKILL.md`);
       governanceKeys = [];
       break;
@@ -29,9 +29,9 @@ function resolveFileList(scope, stateTracking) {
       governanceKeys = [];
   }
 
-  if (stateTracking && !governanceKeys.includes('state/README.md')) {
-    if (FILES['state/README.md']) {
-      governanceKeys.push('state/README.md');
+  if (stateTracking && !governanceKeys.includes("state/README.md")) {
+    if (FILES["state/README.md"]) {
+      governanceKeys.push("state/README.md");
     }
   }
 
@@ -40,11 +40,11 @@ function resolveFileList(scope, stateTracking) {
 
 function safeWrite(absolutePath, content, nonDestructive) {
   if (nonDestructive && fs.existsSync(absolutePath)) {
-    return 'skipped';
+    return "skipped";
   }
   fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
-  fs.writeFileSync(absolutePath, content, 'utf-8');
-  return 'created';
+  fs.writeFileSync(absolutePath, content, "utf-8");
+  return "created";
 }
 
 /**
@@ -58,8 +58,14 @@ function safeWrite(absolutePath, content, nonDestructive) {
  * @param {boolean} options.stateTracking
  * @returns {{ created: string[], skipped: string[] }}
  */
-export function installFiles({ skillPathAbsolute, governancePath, scope, projectType, stateTracking }) {
-  const nonDestructive = projectType === 'existing' || projectType === 'monorepo';
+export function installFiles({
+  skillPathAbsolute,
+  governancePath,
+  scope,
+  projectType,
+  stateTracking,
+}) {
+  const nonDestructive = projectType === "existing" || projectType === "monorepo";
   const { skillKeys, governanceKeys } = resolveFileList(scope, stateTracking);
 
   const created = [];
@@ -68,24 +74,24 @@ export function installFiles({ skillPathAbsolute, governancePath, scope, project
   // Skill files → <skillPathAbsolute>/yellowpages/...
   for (const key of skillKeys) {
     const tail = key.slice(SKILL_PREFIX.length);
-    const dest = path.join(skillPathAbsolute, 'yellowpages', tail);
+    const dest = path.join(skillPathAbsolute, "yellowpages", tail);
     const status = safeWrite(dest, FILES[key], nonDestructive);
-    (status === 'created' ? created : skipped).push(dest);
+    (status === "created" ? created : skipped).push(dest);
   }
 
   // Governance files → <governancePath>/...
   for (const key of governanceKeys) {
     const dest = path.join(governancePath, key);
     const status = safeWrite(dest, FILES[key], nonDestructive);
-    (status === 'created' ? created : skipped).push(dest);
+    (status === "created" ? created : skipped).push(dest);
   }
 
   // Create empty learnings.jsonl if state tracking enabled
   if (stateTracking) {
-    const learningsPath = path.join(governancePath, 'state', 'learnings.jsonl');
+    const learningsPath = path.join(governancePath, "state", "learnings.jsonl");
     if (!fs.existsSync(learningsPath)) {
       fs.mkdirSync(path.dirname(learningsPath), { recursive: true });
-      fs.writeFileSync(learningsPath, '', 'utf-8');
+      fs.writeFileSync(learningsPath, "", "utf-8");
       created.push(learningsPath);
     } else {
       skipped.push(learningsPath);
@@ -99,8 +105,8 @@ export function installFiles({ skillPathAbsolute, governancePath, scope, project
  * Write yellowpages.config.json.
  */
 export function writeConfig(rootDir, config) {
-  const dest = path.join(rootDir, 'yellowpages.config.json');
-  fs.writeFileSync(dest, JSON.stringify(config, null, 2) + '\n', 'utf-8');
+  const dest = path.join(rootDir, "yellowpages.config.json");
+  fs.writeFileSync(dest, JSON.stringify(config, null, 2) + "\n", "utf-8");
 }
 
 /**
@@ -109,7 +115,7 @@ export function writeConfig(rootDir, config) {
  */
 export function appendToInstructions(rootDir, filename) {
   const filePath = path.join(rootDir, filename);
-  const marker = '<!-- yellowpages:start -->';
+  const marker = "<!-- yellowpages:start -->";
   const block = `
 ${marker}
 ## Skills
@@ -123,10 +129,10 @@ This project uses the [yellowpages](https://github.com/nilsclabb/yellowpages) sk
 `;
 
   if (fs.existsSync(filePath)) {
-    const existing = fs.readFileSync(filePath, 'utf-8');
+    const existing = fs.readFileSync(filePath, "utf-8");
     if (existing.includes(marker)) return;
-    fs.appendFileSync(filePath, block, 'utf-8');
+    fs.appendFileSync(filePath, block, "utf-8");
   } else {
-    fs.writeFileSync(filePath, block.trimStart(), 'utf-8');
+    fs.writeFileSync(filePath, block.trimStart(), "utf-8");
   }
 }

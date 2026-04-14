@@ -2,18 +2,18 @@
  * caveman.js — Caveman terse mode installer for yp-stack
  *
  * Exports installCaveman(platform, cwd) and uninstallCaveman(platform, cwd).
- * Rule body and hook file content are bundled as string constants so this
- * module works from the npm cache without needing the repo's rules/ directory.
+ * Hook content is auto-generated from hooks/ source files by the bundler
+ * into src/hooks.js — no manual sync needed.
  *
  * Credit: Julius Brussee / https://github.com/JuliusBrussee/caveman
- * Keep RULE_BODY in sync with rules/caveman-activate.md when updating.
  */
 
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import { CAVEMAN_ACTIVATE_HOOK, CAVEMAN_TRACKER_HOOK } from "./hooks.js";
 
-// ─── Bundled content ────────────────────────────────────────────────────────
+// ─── Rule body (also baked into caveman-activate.js hook) ───────────────────
 
 export const RULE_BODY = `Respond terse like smart caveman. All technical substance stay. Only fluff die.
 Drop: articles (a/an/the), filler (just/really/basically), pleasantries, hedging.
@@ -25,60 +25,7 @@ Auto-Clarity: drop caveman for security warnings, irreversible actions, user con
 Boundaries: written artifacts (skills, specs, docs, reference files) NEVER caveman.
 Code/commits/PRs: normal formatting.`;
 
-// Hook file content — written to ~/.claude/hooks/ during Claude Code install
-// NOTE: Keep in sync with hooks/caveman-activate.js
-const HOOK_ACTIVATE = `#!/usr/bin/env node
-import fs from 'node:fs';
-import path from 'node:path';
-import os from 'node:os';
-const FLAG_FILE = path.join(os.homedir(), '.claude', '.caveman-active');
-const RULE_BODY = \`Respond terse like smart caveman. All technical substance stay. Only fluff die.
-Drop: articles (a/an/the), filler (just/really/basically), pleasantries, hedging.
-Fragments OK. Short synonyms. Technical terms exact. Code unchanged.
-Pattern: [thing] [action] [reason]. [next step].
-Switch level: /caveman lite|full|ultra
-Stop: "stop caveman" or "normal mode"
-Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
-Boundaries: written artifacts (skills, specs, docs, reference files) NEVER caveman.
-Code/commits/PRs: normal formatting.\`;
-try {
-  fs.mkdirSync(path.dirname(FLAG_FILE), { recursive: true });
-  fs.writeFileSync(FLAG_FILE, 'full', 'utf-8');
-  let ruleBody = RULE_BODY;
-  try {
-    const rulesPath = path.join(os.homedir(), '.claude', 'rules', 'caveman-activate.md');
-    ruleBody = fs.readFileSync(rulesPath, 'utf-8').trim();
-  } catch {}
-  process.stdout.write(ruleBody + '\\n');
-} catch {}
-`;
-
-// NOTE: Keep in sync with hooks/caveman-mode-tracker.js
-const HOOK_TRACKER = `#!/usr/bin/env node
-import fs from 'node:fs';
-import path from 'node:path';
-import os from 'node:os';
-const FLAG_FILE = path.join(os.homedir(), '.claude', '.caveman-active');
-async function main() {
-  try {
-    const chunks = [];
-    for await (const chunk of process.stdin) chunks.push(chunk);
-    const input = JSON.parse(Buffer.concat(chunks).toString('utf-8'));
-    const prompt = (input?.prompt ?? '').trim().toLowerCase();
-    if (prompt.startsWith('/caveman ultra')) fs.writeFileSync(FLAG_FILE, 'ultra', 'utf-8');
-    else if (prompt.startsWith('/caveman lite')) fs.writeFileSync(FLAG_FILE, 'lite', 'utf-8');
-    else if (prompt.startsWith('/caveman full') || prompt.startsWith('/caveman')) fs.writeFileSync(FLAG_FILE, 'full', 'utf-8');
-    else if (prompt.includes('stop caveman') || prompt.includes('normal mode')) {
-      try { fs.unlinkSync(FLAG_FILE); } catch {}
-    }
-  } catch {}
-  process.exit(0);
-}
-main();
-`;
-
 // ─── Platform-to-path map ────────────────────────────────────────────────────
-// Not in platforms.js (which carries only skill paths). Maintained here.
 
 const PLATFORM_RULE_PATHS = {
   cursor: (cwd) => path.join(cwd, ".cursor", "rules", "caveman.mdc"),
@@ -130,8 +77,8 @@ function _installClaudeCode() {
   fs.mkdirSync(hooksDir, { recursive: true });
   fs.writeFileSync(path.join(hooksDir, "package.json"), '{"type":"module"}\n', "utf-8");
   fs.mkdirSync(rulesDir, { recursive: true });
-  fs.writeFileSync(path.join(hooksDir, "caveman-activate.js"), HOOK_ACTIVATE, "utf-8");
-  fs.writeFileSync(path.join(hooksDir, "caveman-mode-tracker.js"), HOOK_TRACKER, "utf-8");
+  fs.writeFileSync(path.join(hooksDir, "caveman-activate.js"), CAVEMAN_ACTIVATE_HOOK, "utf-8");
+  fs.writeFileSync(path.join(hooksDir, "caveman-mode-tracker.js"), CAVEMAN_TRACKER_HOOK, "utf-8");
   fs.writeFileSync(path.join(rulesDir, "caveman-activate.md"), RULE_BODY + "\n", "utf-8");
 
   let settings = {};
@@ -158,7 +105,7 @@ function _installCopilot(cwd) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   if (fs.existsSync(filePath)) {
     const existing = fs.readFileSync(filePath, "utf-8");
-    if (existing.includes(COPILOT_START)) return; // idempotent — already installed
+    if (existing.includes(COPILOT_START)) return;
     fs.appendFileSync(filePath, block, "utf-8");
   } else {
     fs.writeFileSync(filePath, block.trimStart(), "utf-8");
@@ -234,7 +181,7 @@ function _uninstallClaudeCode() {
 
 function _uninstallCopilot(cwd) {
   const filePath = path.join(cwd, ".github", "copilot-instructions.md");
-  if (!fs.existsSync(filePath)) return; // no-op if file absent
+  if (!fs.existsSync(filePath)) return;
   let content = fs.readFileSync(filePath, "utf-8");
   const start = content.indexOf(COPILOT_START);
   const end = content.indexOf(COPILOT_END);

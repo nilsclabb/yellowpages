@@ -25,9 +25,9 @@ jobs:
         working-directory: packages/yp-stack
         run: npm install
 
-      - name: Bundle content
+      - name: Bundle and test
         working-directory: packages/yp-stack
-        run: npm run bundle
+        run: npm test
 
       - name: Check if version changed
         id: version-check

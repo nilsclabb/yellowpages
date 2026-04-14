@@ -4,64 +4,18 @@
  * Exports installSkillsManager(platform, cwd) and
  * uninstallSkillsManager(platform, cwd).
  *
- * installSkillsManager is called from index.js after installFiles —
- * same call-site pattern as installCaveman.
- *
- * Hook content is bundled as a string constant (MANIFEST_HOOK) so this
- * module works from the npm cache without needing the repo's hooks/ directory.
- * Keep MANIFEST_HOOK in sync with hooks/skills-manifest.js when updating.
+ * Hook content is auto-generated from hooks/ source files by the bundler
+ * into src/hooks.js — no manual sync needed.
  */
 
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { getPlatform } from "./platforms.js";
+import { MANIFEST_HOOK } from "./hooks.js";
 
-// ─── Bundled hook content ────────────────────────────────────────────────────
-
-// NOTE: Keep this in sync with hooks/skills-manifest.js
-export const MANIFEST_HOOK = `#!/usr/bin/env node
-/**
- * skills-manifest.js — SessionStart hook (bundled by yp-stack npm package)
- * Keep in sync with hooks/skills-manifest.js in the yellowpages repo.
- */
-import fs from 'node:fs';
-import path from 'node:path';
-import os from 'node:os';
-const HOME = os.homedir();
-const CWD = process.cwd();
-const FALLBACK = '[YP · manifest scan failed · /diagnose to check]';
-const YP_SKILLS = new Set(['caveman','yp-help','yp-status','yp-context','yp-session','yp-reload','yp-notes','yp-remember','yp-forget','manage-global-skills','manage-project-skills','scaffold-skill','validate-skill','yp-diagnose','yp-compress','yp-tasks','auto-plan','yp-upgrade','react-patterns','convex-patterns','frontend-architecture','preferred-stack','ui-component-system','monorepo-setup']);
-function listDirs(p){try{return fs.readdirSync(p).filter(n=>fs.statSync(path.join(p,n)).isDirectory());}catch{return[];}}
-function fileExists(p){try{return fs.existsSync(p);}catch{return false;}}
-function readConfig(){try{return JSON.parse(fs.readFileSync(path.join(CWD,'yellowpages.config.json'),'utf-8'));}catch{return null;}}
-function countTaskStates(p){try{const c=fs.readFileSync(p,'utf-8');return{done:(c.match(/- \\[X\\]/g)||[]).length,inProgress:(c.match(/- \\[\\/\\]/g)||[]).length,pending:(c.match(/- \\[ \\]/g)||[]).length};}catch{return null;}}
-try{
-  const config=readConfig();
-  const bases=[];
-  if(config?.skillPath)bases.push(path.join(CWD,config.skillPath));
-  bases.push(path.join(HOME,'.claude','skills'));
-  bases.push(path.join(HOME,'.agents','skills'));
-  let skillsBase=bases[0];
-  for(const b of bases){if(listDirs(path.join(b,'yellowpages')).some(n=>YP_SKILLS.has(n))){skillsBase=b;break;}}
-  const installedYP=listDirs(path.join(skillsBase,'yellowpages')).filter(n=>YP_SKILLS.has(n));
-  const allGlobal=listDirs(skillsBase);
-  let spCount=0;
-  try{const s=JSON.parse(fs.readFileSync(path.join(HOME,'.claude','settings.json'),'utf-8'));if(Object.keys(s.enabledPlugins||{}).some(k=>k.startsWith('superpowers')))spCount=15;}catch{}
-  const otherCount=allGlobal.filter(n=>!YP_SKILLS.has(n)&&n!=='yellowpages').length;
-  const hasAgents=fileExists(path.join(CWD,'.agents'));
-  const hasClaude=fileExists(path.join(CWD,'CLAUDE.md'));
-  const hasConfig=fileExists(path.join(CWD,'yellowpages.config.json'));
-  const tasksPath=path.join(CWD,'TASKS.md');
-  const ts=fileExists(tasksPath)?countTaskStates(tasksPath):null;
-  const l1=\`[YP v\${config?.version||'?'} · \${installedYP.length?installedYP.join('✓ ')+'✓':'no yp skills installed'}]\`;
-  const l2=\`[GLOBAL: yellowpages(\${installedYP.length}) superpowers(\${spCount}) other(\${otherCount})]\`;
-  const pp=[hasAgents?'.agents/✓':'.agents/✗',hasClaude?'CLAUDE.md✓':'CLAUDE.md✗',hasConfig?'yp-config✓':'yp-config✗',ts?\`TASKS.md: \${ts.done} done · \${ts.inProgress} in-progress · \${ts.pending} pending\`:''].filter(Boolean).join(' · ');
-  const l3=\`[PROJECT: \${pp}]\`;
-  const l4='[COMMANDS: /help /status /context /session /diagnose /scaffold /validate /compress /manage /remember /forget /notes /reload /tasks /auto-plan]';
-  process.stdout.write([l1,l2,l3,l4].join('\\n')+'\\n');
-}catch{process.stdout.write(FALLBACK+'\\n');}
-`;
+// Re-export for external consumers
+export { MANIFEST_HOOK };
 
 // ─── Install ─────────────────────────────────────────────────────────────────
 
@@ -71,7 +25,6 @@ export function installSkillsManager(platform, _cwd = process.cwd()) {
   }
   // Skill files are already installed by installFiles() via content.js FILES map.
   // No per-platform rule files needed — skill dirs are enough.
-  // cwd parameter kept for API symmetry with installCaveman(platform, cwd).
 }
 
 function _installClaudeCode() {
@@ -132,30 +85,11 @@ export function uninstallSkillsManager(platform, cwd = process.cwd()) {
     skillPathAbsolute =
       platformDef?.globalSkillPath ?? path.join(os.homedir(), ".claude", "skills");
   }
-  const YP_UTILITY_SKILLS = [
-    "yp-help",
-    "yp-status",
-    "yp-context",
-    "yp-session",
-    "yp-reload",
-    "yp-notes",
-    "yp-remember",
-    "yp-forget",
-    "manage-global-skills",
-    "manage-project-skills",
-    "scaffold-skill",
-    "validate-skill",
-    "yp-diagnose",
-    "yp-compress",
-    "yp-tasks",
-    "auto-plan",
-  ];
-  for (const name of YP_UTILITY_SKILLS) {
-    const dir = path.join(skillPathAbsolute, "yellowpages", name);
-    try {
-      fs.rmSync(dir, { recursive: true, force: true });
-    } catch {}
-  }
+  // Remove all yellowpages skill directories
+  const ypDir = path.join(skillPathAbsolute, "yellowpages");
+  try {
+    fs.rmSync(ypDir, { recursive: true, force: true });
+  } catch {}
 }
 
 function _uninstallClaudeCode() {

@@ -30,6 +30,7 @@
   "scripts": {
     "bundle": "node scripts/bundle-content.js",
     "prepublishOnly": "node scripts/bundle-content.js",
+    "test": "node scripts/bundle-content.js && node test/install.test.js",
     "lint": "oxlint src",
     "fmt": "oxfmt .",
     "fmt:check": "oxfmt . --check"

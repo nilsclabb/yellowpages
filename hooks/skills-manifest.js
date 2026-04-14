@@ -19,6 +19,21 @@ const CWD = process.cwd();
 // Fallback emitted if scan fails completely
 const FALLBACK = '[YP · manifest scan failed · /diagnose to check]';
 
+// Version injected by bundler at bundle time (replaced in src/hooks.js).
+// In source, reads from package.json at repo-relative path as fallback.
+const BUNDLED_VERSION = null;
+function getVersion(config) {
+  if (config?.version) return config.version;
+  if (BUNDLED_VERSION) return BUNDLED_VERSION;
+  try {
+    const pkg = JSON.parse(fs.readFileSync(
+      path.join(HOME, '.claude', 'skills', 'yellowpages', '.yp-version'),
+      'utf-8',
+    ));
+    return pkg.version || '?';
+  } catch { return '?'; }
+}
+
 // Known yp-stack skill names (used to identify yellowpages skills)
 const YP_SKILLS = new Set([
   'caveman','yp-help','yp-status','yp-context','yp-session','yp-reload',
@@ -101,7 +116,7 @@ try {
   const taskStates = hasTasks ? countTaskStates(tasksPath) : null;
 
   // Build manifest lines
-  const ypLine = `[YP v${config?.version || '?'} · global: ${installedYP.join('✓ ')}${installedYP.length ? '✓' : 'none installed'}]`;
+  const ypLine = `[YP v${getVersion(config)} · ${installedYP.length ? installedYP.join('✓ ') + '✓' : 'no yp skills installed'}]`;
   const globalLine = `[GLOBAL: yellowpages(${ypCount}) superpowers(${superpowersCount}) other(${otherCount})]`;
   const projectParts = [
     hasAgents ? '.agents/✓' : '.agents/✗',

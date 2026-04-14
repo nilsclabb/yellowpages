@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { FILES } from "./content.js";
+import { VERSION } from "./hooks.js";
 
 const SKILL_PREFIX = "skills/yellowpages/";
 
@@ -80,6 +81,11 @@ export function installFiles(
     (status === "created" ? created : skipped).push(dest);
     if (onFile) onFile(dest, status);
   }
+
+  // Write version marker (used by skills-manifest hook when no config exists)
+  const versionMarker = path.join(skillPathAbsolute, "yellowpages", ".yp-version");
+  fs.mkdirSync(path.dirname(versionMarker), { recursive: true });
+  fs.writeFileSync(versionMarker, JSON.stringify({ version: VERSION }) + "\n", "utf-8");
 
   // Governance files → <governancePath>/...
   for (const key of governanceKeys) {

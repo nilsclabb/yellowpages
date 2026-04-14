@@ -31,14 +31,19 @@ import os from 'node:os';
 const HOME = os.homedir();
 const CWD = process.cwd();
 const FALLBACK = '[YP · manifest scan failed · /diagnose to check]';
-const YP_SKILLS = new Set(['caveman','yp-help','yp-status','yp-context','yp-session','yp-reload','yp-notes','yp-remember','yp-forget','manage-global-skills','manage-project-skills','scaffold-skill','validate-skill','yp-diagnose','yp-compress','yp-tasks','auto-plan','convex-patterns','frontend-architecture','preferred-stack','ui-component-system','monorepo-setup']);
+const YP_SKILLS = new Set(['caveman','yp-help','yp-status','yp-context','yp-session','yp-reload','yp-notes','yp-remember','yp-forget','manage-global-skills','manage-project-skills','scaffold-skill','validate-skill','yp-diagnose','yp-compress','yp-tasks','auto-plan','yp-upgrade','react-patterns','convex-patterns','frontend-architecture','preferred-stack','ui-component-system','monorepo-setup']);
 function listDirs(p){try{return fs.readdirSync(p).filter(n=>fs.statSync(path.join(p,n)).isDirectory());}catch{return[];}}
 function fileExists(p){try{return fs.existsSync(p);}catch{return false;}}
 function readConfig(){try{return JSON.parse(fs.readFileSync(path.join(CWD,'yellowpages.config.json'),'utf-8'));}catch{return null;}}
 function countTaskStates(p){try{const c=fs.readFileSync(p,'utf-8');return{done:(c.match(/- \\[X\\]/g)||[]).length,inProgress:(c.match(/- \\[\\/\\]/g)||[]).length,pending:(c.match(/- \\[ \\]/g)||[]).length};}catch{return null;}}
 try{
   const config=readConfig();
-  const skillsBase=config?.skillPath?path.join(CWD,config.skillPath):path.join(HOME,'.claude','skills');
+  const bases=[];
+  if(config?.skillPath)bases.push(path.join(CWD,config.skillPath));
+  bases.push(path.join(HOME,'.claude','skills'));
+  bases.push(path.join(HOME,'.agents','skills'));
+  let skillsBase=bases[0];
+  for(const b of bases){if(listDirs(path.join(b,'yellowpages')).some(n=>YP_SKILLS.has(n))){skillsBase=b;break;}}
   const installedYP=listDirs(path.join(skillsBase,'yellowpages')).filter(n=>YP_SKILLS.has(n));
   const allGlobal=listDirs(skillsBase);
   let spCount=0;

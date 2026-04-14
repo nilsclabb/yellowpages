@@ -24,6 +24,7 @@ const YP_SKILLS = new Set([
   'caveman','yp-help','yp-status','yp-context','yp-session','yp-reload',
   'yp-notes','yp-remember','yp-forget','manage-global-skills','manage-project-skills',
   'scaffold-skill','validate-skill','yp-diagnose','yp-compress','yp-tasks','auto-plan',
+  'yp-upgrade','react-patterns',
   'convex-patterns','frontend-architecture','preferred-stack','ui-component-system','monorepo-setup',
 ]);
 
@@ -56,11 +57,22 @@ function countTaskStates(tasksPath) {
 }
 
 try {
-  // Determine skill path from config or default
+  // Determine skill paths — check multiple locations, first match wins
   const config = readConfig();
-  const skillsBase = config?.skillPath
-    ? path.join(CWD, config.skillPath)
-    : path.join(HOME, '.claude', 'skills');
+  const candidateBases = [];
+  if (config?.skillPath) candidateBases.push(path.join(CWD, config.skillPath));
+  candidateBases.push(path.join(HOME, '.claude', 'skills'));
+  candidateBases.push(path.join(HOME, '.agents', 'skills'));
+
+  // Pick the first base that has a yellowpages/ subdirectory with skills
+  let skillsBase = candidateBases[0];
+  for (const base of candidateBases) {
+    const yp = path.join(base, 'yellowpages');
+    if (listDirs(yp).some(n => YP_SKILLS.has(n))) {
+      skillsBase = base;
+      break;
+    }
+  }
 
   // Layer 1: yellowpages skills
   const ypSkillsPath = path.join(skillsBase, 'yellowpages');

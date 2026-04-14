@@ -21,6 +21,15 @@ This file is the "constitution" for all agents working in this repo. Read it at 
 ## Repo Layout
 
 ```
+skills/
+└── yellowpages/          ← ALL installable skills (single source of truth)
+    ├── SKILL.md          ← main cover page
+    ├── INDEX.md          ← skill discovery index
+    ├── SKILLS-INDEX.md   ← utility command reference
+    ├── references/       ← core yellowpages reference files
+    ├── scripts/          ← Python utilities
+    └── <skill-name>/     ← individual skill directories
+
 .agents/
 ├── project-context.md    ← this file (read first)
 ├── ETHOS.md              ← builder philosophy (read second)
@@ -28,28 +37,31 @@ This file is the "constitution" for all agents working in this repo. Read it at 
 ├── workflows/            ← step-file workflows
 ├── checklists/           ← quality verification lists
 ├── templates/            ← document scaffolds
-├── state/                ← persistent cross-session state (learnings, gates)
-└── skills/               ← installable skills (yellowpages)
+└── state/                ← persistent cross-session state (learnings, gates)
+
+packages/yp-stack/        ← NPM installer (bundles skills/ + .agents/ for distribution)
+hooks/                    ← SessionStart hooks (caveman, skills-manifest)
 ```
 
 ## Navigation Protocol
 
 1. Read `project-context.md` (this file) first
-2. Check `.agents/skills/yellowpages/INDEX.md` to locate the right skill
+2. Check `skills/yellowpages/INDEX.md` to locate the right skill
 3. Read that skill's `SKILL.md` cover page
 4. Follow only the reference branch your task requires
-5. For workflow tasks, enter the relevant `workflows/` step-file sequence
+5. For workflow tasks, enter the relevant `.agents/workflows/` step-file sequence
 
 ## Global Constraints
 
-- Do not create files inside `.agents/skills/` that are not `SKILL.md`, `INDEX.md`, or inside `references/`, `scripts/`, or `assets/`
+- Do not create files inside `skills/yellowpages/` that are not `SKILL.md`, `INDEX.md`, or inside `references/`, `scripts/`, or `assets/`
 - Do not create auxiliary docs (README, CHANGELOG, INSTALLATION_GUIDE) inside skill folders
 - Scratch files go in the conversation's `scratch/` directory, not in the repo
 - Append session learnings to `.agents/state/learnings.jsonl` at the end of any session where meaningful work was done
 - Write gate status to `.agents/state/gates/<workflow>.json` after any multi-step workflow completes
-- Caveman terse mode is active by default. See `.agents/skills/yellowpages/caveman/SKILL.md` to toggle or read about intensity levels.
+- Caveman terse mode is active by default. See `skills/yellowpages/caveman/SKILL.md` to toggle or read about intensity levels.
 - Before any task touching `packages/yp-stack/` is marked complete, run `bun lint && bun fmt:check` inside that package and confirm clean output
+- **Skills single source of truth**: all skills live in `skills/yellowpages/`. The bundler reads from there. Never duplicate skills into `.agents/`.
 
 ## React Coding Rules
 
-- **Do not use `useEffect` to sync server data into form state.** Use key-based remounting instead: extract a dedicated edit-form component, pass server data as `initialData`, and key it on the entity ID. See skill for full rationale, before/after code, and edge cases: [`.agents/skills/yellowpages/react-patterns/SKILL.md`](.agents/skills/yellowpages/react-patterns/SKILL.md)
+- **Do not use `useEffect` to sync server data into form state.** Use key-based remounting instead: extract a dedicated edit-form component, pass server data as `initialData`, and key it on the entity ID. See skill: [`skills/yellowpages/react-patterns/SKILL.md`](../../skills/yellowpages/react-patterns/SKILL.md)

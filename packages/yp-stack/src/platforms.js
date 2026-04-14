@@ -88,9 +88,11 @@ export const PLATFORMS = [
 
 export function detectPlatforms(cwd) {
   const detected = [];
+  const home = os.homedir();
   for (const platform of PLATFORMS) {
     for (const dp of platform.detectPaths) {
-      if (fs.existsSync(path.join(cwd, dp))) {
+      // Check both cwd (project-level) and home dir (global install)
+      if (fs.existsSync(path.join(cwd, dp)) || fs.existsSync(path.join(home, dp))) {
         detected.push(platform.value);
         break;
       }

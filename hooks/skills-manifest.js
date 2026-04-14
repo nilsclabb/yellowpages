@@ -34,14 +34,47 @@ function getVersion(config) {
   } catch { return '?'; }
 }
 
-// Known yp-stack skill names (used to identify yellowpages skills)
-const YP_SKILLS = new Set([
-  'caveman','yp-help','yp-status','yp-context','yp-session','yp-reload',
-  'yp-notes','yp-remember','yp-forget','manage-global-skills','manage-project-skills',
-  'scaffold-skill','validate-skill','yp-diagnose','yp-compress','yp-tasks','auto-plan',
-  'yp-upgrade','react-patterns',
-  'convex-patterns','frontend-architecture','preferred-stack','ui-component-system','monorepo-setup',
-]);
+// Parse YAML frontmatter from a SKILL.md file.
+// Returns { name, description, command, argumentHint } or null on failure.
+function parseFrontmatter(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const match = /^---\n([\s\S]*?)\n---/.exec(content);
+    if (!match) return null;
+    const yaml = match[1];
+    const get = (key) => {
+      // Handle both inline values and YAML `>` multiline
+      const re = new RegExp(`^${key}:\\s*(.+)$`, 'm');
+      const m = re.exec(yaml);
+      return m ? m[1].trim().replace(/^["']|["']$/g, '') : undefined;
+    };
+    return {
+      name: get('name'),
+      description: get('description'),
+      command: get('command'),
+      argumentHint: get('argumentHint'),
+    };
+  } catch { return null; }
+}
+
+// Scan yellowpages skill directories and build the skill registry from SKILL.md frontmatter.
+// Returns { skillNames: Set<string>, commands: string[] }
+function scanSkillRegistry(ypSkillsPath) {
+  const dirs = listDirs(ypSkillsPath);
+  const skillNames = new Set();
+  const commands = [];
+  for (const dir of dirs) {
+    const skillMd = path.join(ypSkillsPath, dir, 'SKILL.md');
+    const fm = parseFrontmatter(skillMd);
+    if (!fm || !fm.name) continue;
+    skillNames.add(dir);
+    if (fm.command) {
+      const cmd = fm.argumentHint ? `${fm.command} ${fm.argumentHint}` : fm.command;
+      commands.push(cmd);
+    }
+  }
+  return { skillNames, commands };
+}
 
 function listDirs(p) {
   try { return fs.readdirSync(p).filter(n => fs.statSync(path.join(p, n)).isDirectory()); }
@@ -83,15 +116,16 @@ try {
   let skillsBase = candidateBases[0];
   for (const base of candidateBases) {
     const yp = path.join(base, 'yellowpages');
-    if (listDirs(yp).some(n => YP_SKILLS.has(n))) {
+    if (listDirs(yp).length > 0) {
       skillsBase = base;
       break;
     }
   }
 
-  // Layer 1: yellowpages skills
+  // Layer 1: yellowpages skills — derived from SKILL.md frontmatter
   const ypSkillsPath = path.join(skillsBase, 'yellowpages');
-  const installedYP = listDirs(ypSkillsPath).filter(n => YP_SKILLS.has(n));
+  const registry = scanSkillRegistry(ypSkillsPath);
+  const installedYP = listDirs(ypSkillsPath).filter(n => registry.skillNames.has(n));
 
   // Layer 2: all global skills
   const allGlobal = listDirs(skillsBase);
@@ -105,7 +139,7 @@ try {
       superpowersCount = 15; // known count
     }
   } catch {}
-  const otherCount = allGlobal.filter(n => !YP_SKILLS.has(n) && n !== 'yellowpages').length;
+  const otherCount = allGlobal.filter(n => !registry.skillNames.has(n) && n !== 'yellowpages').length;
 
   // Layer 3: project context
   const hasAgents = fileExists(path.join(CWD, '.agents'));
@@ -125,7 +159,9 @@ try {
     taskStates ? `TASKS.md: ${taskStates.done} done · ${taskStates.inProgress} in-progress · ${taskStates.pending} pending` : '',
   ].filter(Boolean).join(' · ');
   const projectLine = `[PROJECT: ${projectParts}]`;
-  const cmdLine = '[COMMANDS: /yp:help /yp:status /yp:context /yp:session /yp:diagnose /yp:scaffold /yp:validate /yp:compress /yp:manage-global /yp:manage-project /yp:remember /yp:forget /yp:notes /yp:reload /yp:tasks /yp:auto-plan /yp:upgrade]';
+  const cmdLine = registry.commands.length
+    ? `[COMMANDS: ${registry.commands.join(' ')}]`
+    : '[COMMANDS: none discovered — run /yp:diagnose]';
 
   process.stdout.write([ypLine, globalLine, projectLine, cmdLine].join('\n') + '\n');
 } catch {

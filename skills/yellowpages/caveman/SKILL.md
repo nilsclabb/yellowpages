@@ -1,6 +1,8 @@
 ---
 name: caveman
 description: Terse agent communication mode. ON by default. Toggle anytime with /caveman or "stop caveman".
+command: /caveman
+argumentHint: "[full|lite|ultra]"
 ---
 
 # caveman

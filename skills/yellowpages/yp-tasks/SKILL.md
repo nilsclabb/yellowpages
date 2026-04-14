@@ -1,6 +1,8 @@
 ---
 name: yp-tasks
 description: View, claim, and complete tasks in TASKS.md — multi-agent parallel task coordination.
+command: /yp:tasks
+argumentHint: "[pickup|complete|status]"
 ---
 
 # /yp:tasks

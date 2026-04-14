@@ -1,6 +1,7 @@
 ---
 name: yp-upgrade
 description: Update yp-stack to the latest version — re-runs npx yp-stack@latest with existing config.
+command: /yp:upgrade
 ---
 
 # /yp:upgrade

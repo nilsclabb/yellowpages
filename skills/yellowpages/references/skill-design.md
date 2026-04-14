@@ -20,6 +20,8 @@ Every SKILL.md must follow this structure in order:
 ---
 name: skill-name
 description: [what it does] + [when to trigger it — be comprehensive]
+command: /yp:skill-name
+argumentHint: "<arg>"
 ---
 
 # Skill Title

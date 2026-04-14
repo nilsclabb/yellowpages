@@ -1,6 +1,7 @@
 ---
 name: yp-status
 description: Current session snapshot — caveman mode, active skills, project context, hook health.
+command: /yp:status
 ---
 
 # /yp:status

@@ -1,6 +1,7 @@
 ---
 name: yp-reload
 description: Re-read CLAUDE.md and installed skills state into conversation context via tool use.
+command: /yp:reload
 ---
 
 # /yp:reload

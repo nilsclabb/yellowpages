@@ -1,6 +1,7 @@
 ---
 name: yp-help
 description: Quick reference card for all yp-stack commands, caveman modes, and installed skills.
+command: /yp:help
 ---
 
 # /yp:help

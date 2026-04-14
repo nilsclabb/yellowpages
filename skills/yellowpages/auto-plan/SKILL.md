@@ -1,6 +1,7 @@
 ---
 name: auto-plan
 description: Generate a TASKS.md task coordination file from a description of work, problem list, or requirements.
+command: /yp:auto-plan
 ---
 
 # /yp:auto-plan

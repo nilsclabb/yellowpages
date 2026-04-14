@@ -1,6 +1,7 @@
 ---
 name: react-patterns
 description: React coding patterns and anti-patterns for this stack. Use this skill when writing React components, form state, data-sync hooks, or when reviewing code for useEffect misuse, form synchronization, or key-based remounting patterns.
+command: /react-patterns
 ---
 
 # react-patterns

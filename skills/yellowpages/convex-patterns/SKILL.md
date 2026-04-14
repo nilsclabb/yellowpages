@@ -6,6 +6,7 @@ description: >
   mutations, or actions, designing a Convex schema, adding indexes, setting up
   multi-tenant access control, handling errors in Convex, validating data on
   the backend, creating cron jobs, or defining HTTP endpoints.
+command: /convex-patterns
 ---
 
 # Convex Patterns

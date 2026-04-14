@@ -1,6 +1,7 @@
 ---
 name: manage-global-skills
 description: View and manage all globally installed skill libraries — inventory, install, remove, update.
+command: /yp:manage-global
 ---
 
 # /yp:manage-global

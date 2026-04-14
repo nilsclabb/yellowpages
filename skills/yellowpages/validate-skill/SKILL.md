@@ -1,6 +1,8 @@
 ---
 name: validate-skill
 description: Run the yellowpages quality checklist against a skill and report pass/fail per criterion.
+command: /yp:validate
+argumentHint: "<path>"
 ---
 
 # /yp:validate <path>

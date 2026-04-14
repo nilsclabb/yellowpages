@@ -1,6 +1,7 @@
 ---
 name: yp-diagnose
 description: Scan all installed skills for yellowpages compliance violations and emit exact fix instructions.
+command: /yp:diagnose
 ---
 
 # /yp:diagnose

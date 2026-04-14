@@ -6,6 +6,7 @@ description: >
   and monorepo conventions. Use when: choosing a tech stack, starting a new project,
   making an architectural decision, selecting a library or framework, asking "what
   should I use for X", or needing an overview of preferred tooling.
+command: /preferred-stack
 ---
 
 # Preferred Stack

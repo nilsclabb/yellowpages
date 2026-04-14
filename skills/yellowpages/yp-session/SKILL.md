@@ -1,6 +1,7 @@
 ---
 name: yp-session
 description: Model info, estimated context pressure, and active hooks for current session.
+command: /yp:session
 ---
 
 # /yp:session

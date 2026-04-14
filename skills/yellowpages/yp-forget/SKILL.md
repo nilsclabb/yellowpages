@@ -1,6 +1,8 @@
 ---
 name: yp-forget
 description: Remove a note from CLAUDE.md Agent Notes section.
+command: /yp:forget
+argumentHint: "<fact>"
 ---
 
 # /yp:forget <fact>

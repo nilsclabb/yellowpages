@@ -6,6 +6,7 @@ description: >
   setting up a new project, configuring workspaces, adding a shared package,
   setting up build scripts, configuring Vercel deployment, managing environment
   variables, configuring TypeScript paths, or setting up Vite plugins.
+command: /monorepo-setup
 ---
 
 # Monorepo Setup

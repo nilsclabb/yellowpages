@@ -1,6 +1,8 @@
 ---
 name: yp-compress
 description: Rewrite a memory file in terse caveman-style prose to reduce input tokens by ~46%.
+command: /yp:compress
+argumentHint: "<file>"
 ---
 
 # /yp:compress <file>

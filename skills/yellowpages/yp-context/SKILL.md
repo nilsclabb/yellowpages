@@ -1,6 +1,7 @@
 ---
 name: yp-context
 description: Full transparency view — everything injected into this session at startup.
+command: /yp:context
 ---
 
 # /yp:context

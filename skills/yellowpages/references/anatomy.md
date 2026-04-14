@@ -14,7 +14,7 @@ skill-name/
 
 Every SKILL.md has two parts:
 
-**Frontmatter (YAML)** — `name` and `description`. These are read before the body to decide if the skill triggers. Description must be comprehensive — it is the only thing Claude reads at selection time.
+**Frontmatter (YAML)** — `name`, `description`, and optionally `command` + `argumentHint`. Name and description are read before the body to decide if the skill triggers. Description must be comprehensive — it is the only thing Claude reads at selection time. The `command` field registers the skill as a slash command in the session manifest.
 
 **Body (Markdown)** — Instructions loaded after triggering. Keep ≤ 80 lines. Move detail to reference files.
 

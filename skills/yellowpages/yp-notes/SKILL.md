@@ -1,6 +1,7 @@
 ---
 name: yp-notes
 description: Print current CLAUDE.md contents — make implicit agent memory explicit.
+command: /yp:notes
 ---
 
 # /yp:notes

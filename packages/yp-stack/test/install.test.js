@@ -26,11 +26,9 @@ if (!fs.existsSync(contentPath)) {
 
 const { FILES } = await import(path.join(PKG, "src", "content.js"));
 const { installFiles, cleanPreviousInstall, createSkillSymlinks } = await import(
-  path.join(PKG, "src", "install.js"),
+  path.join(PKG, "src", "install.js")
 );
-const { detectPlatforms, getPlatform } = await import(
-  path.join(PKG, "src", "platforms.js")
-);
+const { detectPlatforms, getPlatform } = await import(path.join(PKG, "src", "platforms.js"));
 
 // ── Test harness ──
 
@@ -55,9 +53,7 @@ test("Bundle has skills/yellowpages/SKILL.md", () => {
 });
 
 test("Bundle has ≥14 reference files", () => {
-  const refs = Object.keys(FILES).filter((k) =>
-    k.startsWith("skills/yellowpages/references/"),
-  );
+  const refs = Object.keys(FILES).filter((k) => k.startsWith("skills/yellowpages/references/"));
   assert(refs.length >= 14, `Expected ≥14 refs, got ${refs.length}`);
 });
 
@@ -68,9 +64,19 @@ test("Bundle has INDEX.md and SKILLS-INDEX.md", () => {
 
 test("Bundle has all utility skills", () => {
   const expected = [
-    "yp-help", "yp-status", "yp-context", "yp-session", "yp-reload",
-    "yp-notes", "yp-remember", "yp-forget", "yp-compress", "yp-diagnose",
-    "yp-tasks", "yp-upgrade", "auto-plan",
+    "yp-help",
+    "yp-status",
+    "yp-context",
+    "yp-session",
+    "yp-reload",
+    "yp-notes",
+    "yp-remember",
+    "yp-forget",
+    "yp-compress",
+    "yp-diagnose",
+    "yp-tasks",
+    "yp-upgrade",
+    "auto-plan",
   ];
   for (const s of expected) {
     assert(FILES[`skills/yellowpages/${s}/SKILL.md`], `Missing: ${s}`);
@@ -79,9 +85,16 @@ test("Bundle has all utility skills", () => {
 
 test("Bundle has all domain skills", () => {
   const expected = [
-    "convex-patterns", "frontend-architecture", "monorepo-setup",
-    "preferred-stack", "ui-component-system", "react-patterns", "caveman",
-    "manage-global-skills", "manage-project-skills", "scaffold-skill",
+    "convex-patterns",
+    "frontend-architecture",
+    "monorepo-setup",
+    "preferred-stack",
+    "ui-component-system",
+    "react-patterns",
+    "caveman",
+    "manage-global-skills",
+    "manage-project-skills",
+    "scaffold-skill",
     "validate-skill",
   ];
   for (const s of expected) {
@@ -92,10 +105,7 @@ test("Bundle has all domain skills", () => {
 test("Bundle has governance files", () => {
   assert(FILES["ETHOS.md"], "Missing ETHOS.md");
   assert(FILES["project-context.md"], "Missing project-context.md");
-  assert(
-    FILES["workflows/create-skill/WORKFLOW.md"],
-    "Missing workflow",
-  );
+  assert(FILES["workflows/create-skill/WORKFLOW.md"], "Missing workflow");
 });
 
 test("Bundle has no .agents/skills/ duplicates", () => {
@@ -105,28 +115,22 @@ test("Bundle has no .agents/skills/ duplicates", () => {
 
 // ── Skill list consistency ──
 
-test("YP_SKILLS in manifest hook matches installed skill dirs", () => {
+test("Every sub-skill SKILL.md has a command field in frontmatter", () => {
   // Extract skill dirs from bundle
-  const skillDirs = new Set();
+  const skillDirs = [];
   for (const key of Object.keys(FILES)) {
     const m = key.match(/^skills\/yellowpages\/([^/]+)\/SKILL\.md$/);
-    if (m) skillDirs.add(m[1]);
+    if (m) skillDirs.push(m[1]);
   }
-  // Read manifest hook source and extract YP_SKILLS set
-  const hookSrc = fs.readFileSync(
-    path.resolve(PKG, "..", "..", "hooks", "skills-manifest.js"),
-    "utf-8",
-  );
-  const setMatch = hookSrc.match(/new Set\(\[([\s\S]*?)\]\)/);
-  assert(setMatch, "Could not parse YP_SKILLS from hook source");
-  const hookSkills = new Set(
-    setMatch[1].match(/'([^']+)'/g).map((s) => s.replace(/'/g, "")),
-  );
+  assert(skillDirs.length >= 20, `Expected ≥20 sub-skills, got ${skillDirs.length}`);
   for (const dir of skillDirs) {
-    assert(
-      hookSkills.has(dir),
-      `Skill dir "${dir}" exists in bundle but missing from YP_SKILLS in hook`,
-    );
+    const content = FILES[`skills/yellowpages/${dir}/SKILL.md`];
+    const fmMatch = /^---\n([\s\S]*?)\n---/.exec(content);
+    assert(fmMatch, `${dir}/SKILL.md has no frontmatter`);
+    const hasName = /^name:\s*.+$/m.test(fmMatch[1]);
+    assert(hasName, `${dir}/SKILL.md frontmatter missing name`);
+    const hasCommand = /^command:\s*\/.+$/m.test(fmMatch[1]);
+    assert(hasCommand, `${dir}/SKILL.md frontmatter missing command field`);
   }
 });
 
@@ -138,10 +142,7 @@ test("detectPlatforms finds Claude Code via home dir (skip in CI)", () => {
     return;
   }
   const detected = detectPlatforms("/tmp/nonexistent");
-  assert(
-    detected.includes("claude"),
-    `Expected claude from home dir, got: ${detected}`,
-  );
+  assert(detected.includes("claude"), `Expected claude from home dir, got: ${detected}`);
 });
 
 test("Claude Code platform has correct paths", () => {
@@ -271,8 +272,11 @@ test("Minimal scope does NOT create symlinks", () => {
   // No sub-skill dirs installed, so no symlinks
   const entries = fs.readdirSync(s);
   const symlinks = entries.filter((e) => {
-    try { return fs.lstatSync(path.join(s, e)).isSymbolicLink(); }
-    catch { return false; }
+    try {
+      return fs.lstatSync(path.join(s, e)).isSymbolicLink();
+    } catch {
+      return false;
+    }
   });
   assert(symlinks.length === 0, `Expected 0 symlinks in minimal, got ${symlinks.length}`);
 });

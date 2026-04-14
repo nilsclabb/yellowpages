@@ -6,10 +6,15 @@
 ---
 name: skill-name
 description: <comprehensive trigger + scope description>
+command: /yp:skill-name
+argumentHint: "<arg>"
 ---
 ```
 
-**Only `name` and `description` are valid fields.** No other YAML keys.
+**Valid fields:** `name` (required), `description` (required), `command` (optional), `argumentHint` (optional).
+
+- `command` — the slash command that invokes this skill (e.g., `/yp:help`, `/convex-patterns`). Omit for skills that are only triggered by context matching (e.g., the root `yellowpages` routing skill). The SessionStart hook reads this field to build the `[COMMANDS:]` manifest line dynamically.
+- `argumentHint` — placeholder shown after the command in help text (e.g., `"<file>"`, `"<name>"`). Omit if the command takes no arguments.
 
 ### Writing a Good Description
 

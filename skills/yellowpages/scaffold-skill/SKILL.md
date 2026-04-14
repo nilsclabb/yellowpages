@@ -1,6 +1,8 @@
 ---
 name: scaffold-skill
 description: Create a new yellowpages-compliant skill from a name and description.
+command: /yp:scaffold
+argumentHint: "<name>"
 ---
 
 # /yp:scaffold <name>

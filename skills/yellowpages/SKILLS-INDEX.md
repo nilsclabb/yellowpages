@@ -1,6 +1,6 @@
-# YP Utility Skills Index
+# YP Skills Index
 
-All yp-stack utility and management skills. Invoke by typing the command in any session.
+All yp-stack skills. Commands derived from `command` field in each SKILL.md frontmatter.
 
 ## Session & Context
 
@@ -14,6 +14,7 @@ All yp-stack utility and management skills. Invoke by typing the command in any 
 | `yp-notes` | `/yp:notes` | Show CLAUDE.md contents |
 | `yp-remember` | `/yp:remember <fact>` | Append persistent note to CLAUDE.md |
 | `yp-forget` | `/yp:forget <fact>` | Remove note from CLAUDE.md |
+| `caveman` | `/caveman [full\|lite\|ultra]` | Toggle terse communication mode |
 
 ## Skill Management
 
@@ -30,7 +31,7 @@ All yp-stack utility and management skills. Invoke by typing the command in any 
 
 | Skill | Command | When to use |
 |---|---|---|
-| `yp-tasks` | `/yp:tasks` | View, claim, and complete tasks in TASKS.md |
+| `yp-tasks` | `/yp:tasks [pickup\|complete\|status]` | View, claim, and complete tasks in TASKS.md |
 | `auto-plan` | `/yp:auto-plan` | Generate TASKS.md from a description of work |
 
 ## Maintenance
@@ -38,3 +39,14 @@ All yp-stack utility and management skills. Invoke by typing the command in any 
 | Skill | Command | When to use |
 |---|---|---|
 | `yp-upgrade` | `/yp:upgrade` | Update yp-stack to latest version |
+
+## Domain Skills
+
+| Skill | Command | When to use |
+|---|---|---|
+| `preferred-stack` | `/preferred-stack` | Tech stack choices and architectural decisions |
+| `convex-patterns` | `/convex-patterns` | Convex backend functions, schema, auth patterns |
+| `frontend-architecture` | `/frontend-architecture` | React app structure, routing, state management |
+| `ui-component-system` | `/ui-component-system` | Design system, Radix UI, Tailwind, CVA components |
+| `monorepo-setup` | `/monorepo-setup` | Bun + Turborepo workspace and deployment config |
+| `react-patterns` | `/react-patterns` | React coding patterns and anti-patterns |

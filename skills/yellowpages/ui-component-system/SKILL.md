@@ -8,6 +8,7 @@ description: >
   adding variants to a component, working with the color system, implementing
   dark mode, choosing which component to use, or importing from the shared
   UI package.
+command: /ui-component-system
 ---
 
 # UI Component System

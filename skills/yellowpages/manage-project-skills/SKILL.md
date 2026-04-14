@@ -1,6 +1,7 @@
 ---
 name: manage-project-skills
 description: View and manage the current project's skill context — .agents/, CLAUDE.md, TASKS.md, and installed skills.
+command: /yp:manage-project
 ---
 
 # /yp:manage-project

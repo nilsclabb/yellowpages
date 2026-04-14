@@ -13,6 +13,7 @@ import path from "node:path";
 import os from "node:os";
 import { getPlatform } from "./platforms.js";
 import { MANIFEST_HOOK } from "./hooks.js";
+import { cleanPreviousInstall } from "./install.js";
 
 // Re-export for external consumers
 export { MANIFEST_HOOK };
@@ -85,11 +86,8 @@ export function uninstallSkillsManager(platform, cwd = process.cwd()) {
     skillPathAbsolute =
       platformDef?.globalSkillPath ?? path.join(os.homedir(), ".claude", "skills");
   }
-  // Remove all yellowpages skill directories
-  const ypDir = path.join(skillPathAbsolute, "yellowpages");
-  try {
-    fs.rmSync(ypDir, { recursive: true, force: true });
-  } catch {}
+  // Remove yellowpages package dir + top-level symlinks
+  cleanPreviousInstall(skillPathAbsolute);
 }
 
 function _uninstallClaudeCode() {

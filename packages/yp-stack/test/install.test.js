@@ -25,7 +25,9 @@ if (!fs.existsSync(contentPath)) {
 }
 
 const { FILES } = await import(path.join(PKG, "src", "content.js"));
-const { installFiles } = await import(path.join(PKG, "src", "install.js"));
+const { installFiles, cleanPreviousInstall, createSkillSymlinks } = await import(
+  path.join(PKG, "src", "install.js"),
+);
 const { detectPlatforms, getPlatform } = await import(
   path.join(PKG, "src", "platforms.js")
 );
@@ -228,6 +230,120 @@ test("Existing project mode preserves files", () => {
   });
   assert(fs.readFileSync(fp, "utf-8") === "CUSTOM", "File was overwritten");
   assert(result.skipped.length > 0, "Should have skipped files");
+});
+
+// ── Symlinks: sub-skills discoverable at top level ──
+
+test("Skill scope creates top-level symlinks for sub-skills", () => {
+  const dir = path.join(TMP, "symlinks");
+  const s = path.join(dir, "skills");
+  const g = path.join(dir, "gov");
+  installFiles({
+    skillPathAbsolute: s,
+    governancePath: g,
+    scope: "skill",
+    projectType: "new",
+    stateTracking: false,
+  });
+  // Check a few key symlinks exist and resolve correctly
+  for (const name of ["yp-help", "manage-global-skills", "caveman"]) {
+    const link = path.join(s, name);
+    const stat = fs.lstatSync(link);
+    assert(stat.isSymbolicLink(), `${name} should be a symlink`);
+    assert(
+      fs.existsSync(path.join(link, "SKILL.md")),
+      `${name}/SKILL.md should resolve through symlink`,
+    );
+  }
+});
+
+test("Minimal scope does NOT create symlinks", () => {
+  const dir = path.join(TMP, "minimal-sym");
+  const s = path.join(dir, "skills");
+  const g = path.join(dir, "gov");
+  installFiles({
+    skillPathAbsolute: s,
+    governancePath: g,
+    scope: "minimal",
+    projectType: "new",
+    stateTracking: false,
+  });
+  // No sub-skill dirs installed, so no symlinks
+  const entries = fs.readdirSync(s);
+  const symlinks = entries.filter((e) => {
+    try { return fs.lstatSync(path.join(s, e)).isSymbolicLink(); }
+    catch { return false; }
+  });
+  assert(symlinks.length === 0, `Expected 0 symlinks in minimal, got ${symlinks.length}`);
+});
+
+// ── Clean install: removes stale files from previous version ──
+
+test("Fresh install removes stale files from previous version", () => {
+  const dir = path.join(TMP, "clean");
+  const s = path.join(dir, "skills");
+  const g = path.join(dir, "gov");
+
+  // First install
+  installFiles({
+    skillPathAbsolute: s,
+    governancePath: g,
+    scope: "skill",
+    projectType: "new",
+    stateTracking: false,
+  });
+
+  // Simulate a stale file from an old version
+  const staleFile = path.join(s, "yellowpages", "old-removed-skill", "SKILL.md");
+  fs.mkdirSync(path.dirname(staleFile), { recursive: true });
+  fs.writeFileSync(staleFile, "stale");
+  // Simulate a stale symlink
+  fs.symlinkSync("yellowpages/old-removed-skill", path.join(s, "old-removed-skill"));
+
+  // Second install (fresh — projectType "new")
+  installFiles({
+    skillPathAbsolute: s,
+    governancePath: g,
+    scope: "skill",
+    projectType: "new",
+    stateTracking: false,
+  });
+
+  assert(!fs.existsSync(staleFile), "Stale file should be removed by clean install");
+  assert(!fs.existsSync(path.join(s, "old-removed-skill")), "Stale symlink should be removed");
+  // Real files still present
+  assert(fs.existsSync(path.join(s, "yellowpages", "SKILL.md")), "Fresh files should exist");
+});
+
+test("Non-destructive install does NOT clean previous files", () => {
+  const dir = path.join(TMP, "no-clean");
+  const s = path.join(dir, "skills");
+  const g = path.join(dir, "gov");
+
+  // First install
+  installFiles({
+    skillPathAbsolute: s,
+    governancePath: g,
+    scope: "skill",
+    projectType: "new",
+    stateTracking: false,
+  });
+
+  // Add custom file
+  const customFile = path.join(s, "yellowpages", "my-custom-skill", "SKILL.md");
+  fs.mkdirSync(path.dirname(customFile), { recursive: true });
+  fs.writeFileSync(customFile, "custom");
+
+  // Second install as "existing"
+  installFiles({
+    skillPathAbsolute: s,
+    governancePath: g,
+    scope: "skill",
+    projectType: "existing",
+    stateTracking: false,
+  });
+
+  assert(fs.existsSync(customFile), "Custom file should survive non-destructive install");
 });
 
 // ── Run ──

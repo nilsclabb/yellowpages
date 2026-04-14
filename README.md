@@ -149,6 +149,8 @@ When you run `npx yp-stack`, you choose:
 | Skill only | Skill + references + scripts |
 | Minimal | `SKILL.md` cover page only (preview) |
 
+`yp-stack` also installs **16 built-in utility skills** globally (`~/.claude/skills/yellowpages/`) and a `skills-manifest.js` SessionStart hook that injects a compact skill index every session. Type `/help` in any session to see all available commands.
+
 ---
 
 ## Development

@@ -1,6 +1,6 @@
 {
   "name": "yp-stack",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Install the yellowpages skill system for AI agents",
   "keywords": [
     "agents",

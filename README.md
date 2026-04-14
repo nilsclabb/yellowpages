@@ -89,7 +89,7 @@ skills/yellowpages/               ← All installable skills (single source of t
     ├── auto-plan/                    ← Generate TASKS.md from description
     └── ... (24 skills total)
 
-packages/yp-stack/                ← NPM interactive installer (v0.2.0)
+packages/yp-stack/                ← NPM interactive installer (v0.3.0)
     ├── bin/cli.js                    ← Entry point
     ├── src/
     │   ├── index.js                      ← Interactive setup flow
@@ -102,7 +102,7 @@ packages/yp-stack/                ← NPM interactive installer (v0.2.0)
     ├── scripts/
     │   └── bundle-content.js             ← Bundles skills/ + .agents/ + hooks/
     └── test/
-        └── install.test.js               ← 14-test install verification suite
+        └── install.test.js               ← 18-test install verification suite
 
 hooks/                            ← SessionStart hook source files
     ├── skills-manifest.js            ← Skill inventory + manifest injection

@@ -25,9 +25,13 @@ if (!fs.existsSync(contentPath)) {
 }
 
 const { FILES } = await import(path.join(PKG, "src", "content.js"));
-const { installFiles, cleanPreviousInstall, createSkillSymlinks } = await import(
-  path.join(PKG, "src", "install.js")
-);
+const {
+  installFiles,
+  cleanPreviousInstall,
+  createSkillSymlinks,
+  createCommandFiles,
+  cleanCommandFiles,
+} = await import(path.join(PKG, "src", "install.js"));
 const { detectPlatforms, getPlatform } = await import(path.join(PKG, "src", "platforms.js"));
 
 // ── Test harness ──
@@ -348,6 +352,83 @@ test("Non-destructive install does NOT clean previous files", () => {
   });
 
   assert(fs.existsSync(customFile), "Custom file should survive non-destructive install");
+});
+
+// ── Command files: slash command discoverability ──
+
+test("createCommandFiles generates .md wrappers for skills with command field", () => {
+  const dir = path.join(TMP, "commands");
+  const created = createCommandFiles(dir);
+  assert(created.length >= 20, `Expected ≥20 command files, got ${created.length}`);
+  // Check a specific command file
+  const helpFile = path.join(dir, "yp-help.md");
+  assert(fs.existsSync(helpFile), "yp-help.md should exist");
+  const content = fs.readFileSync(helpFile, "utf-8");
+  assert(content.includes("description:"), "Should have description frontmatter");
+  assert(content.includes("yp-stack:generated"), "Should have yp-stack marker");
+  assert(content.includes("$ARGUMENTS"), "Should have $ARGUMENTS placeholder");
+  assert(content.includes("Run the yp-help skill"), "Should reference skill name");
+});
+
+test("createCommandFiles includes argument-hint for skills that have one", () => {
+  const dir = path.join(TMP, "commands-hints");
+  createCommandFiles(dir);
+  const content = fs.readFileSync(path.join(dir, "yp-remember.md"), "utf-8");
+  assert(content.includes("argument-hint:"), "yp-remember should have argument-hint");
+});
+
+test("createCommandFiles parses multiline YAML descriptions for domain skills", () => {
+  const dir = path.join(TMP, "commands-multiline");
+  createCommandFiles(dir);
+  const content = fs.readFileSync(path.join(dir, "convex-patterns.md"), "utf-8");
+  assert(!content.includes("description: >"), "Should not have raw > in description");
+  assert(content.includes("Conventions"), "Should have actual description text");
+});
+
+test("cleanCommandFiles removes only yp-stack-generated files", () => {
+  const dir = path.join(TMP, "commands-clean");
+  fs.mkdirSync(dir, { recursive: true });
+  // Create a yp-generated file
+  fs.writeFileSync(path.join(dir, "yp-help.md"), "---\n---\n<!-- yp-stack:generated -->\ntest\n");
+  // Create a user file
+  fs.writeFileSync(path.join(dir, "my-custom.md"), "---\n---\nmy custom command\n");
+  cleanCommandFiles(dir);
+  assert(!fs.existsSync(path.join(dir, "yp-help.md")), "yp-generated file should be removed");
+  assert(fs.existsSync(path.join(dir, "my-custom.md")), "User file should be preserved");
+});
+
+test("installFiles with commandsPathAbsolute creates command files", () => {
+  const dir = path.join(TMP, "install-cmds");
+  const s = path.join(dir, "skills");
+  const g = path.join(dir, "gov");
+  const c = path.join(dir, "commands");
+  const result = installFiles({
+    skillPathAbsolute: s,
+    governancePath: g,
+    scope: "skill",
+    projectType: "new",
+    stateTracking: false,
+    commandsPathAbsolute: c,
+  });
+  assert(fs.existsSync(path.join(c, "yp-help.md")), "Command file should be created");
+  assert(
+    result.created.some((p) => p.includes("commands")),
+    "Command files should be in created list",
+  );
+});
+
+test("installFiles without commandsPathAbsolute skips command files", () => {
+  const dir = path.join(TMP, "install-no-cmds");
+  const s = path.join(dir, "skills");
+  const g = path.join(dir, "gov");
+  installFiles({
+    skillPathAbsolute: s,
+    governancePath: g,
+    scope: "skill",
+    projectType: "new",
+    stateTracking: false,
+  });
+  assert(!fs.existsSync(path.join(dir, "commands")), "Commands dir should not be created");
 });
 
 // ── Run ──

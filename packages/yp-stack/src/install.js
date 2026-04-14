@@ -136,6 +136,109 @@ export function createSkillSymlinks(skillPathAbsolute) {
   return created;
 }
 
+const YP_COMMAND_MARKER = "<!-- yp-stack:generated -->";
+
+/**
+ * Parse frontmatter fields from a SKILL.md content string.
+ * Handles both inline values and YAML folded-block `>` multiline.
+ * Returns { name, description, command, argumentHint } or null.
+ */
+function parseBundledFrontmatter(content) {
+  const match = /^---\n([\s\S]*?)\n---/.exec(content);
+  if (!match) return null;
+  const yaml = match[1];
+  const get = (key) => {
+    const re = new RegExp(`^${key}:\\s*(.+)$`, "m");
+    const m = re.exec(yaml);
+    if (!m) return null;
+    const val = m[1].trim();
+    // Handle YAML folded-block scalar (description: >)
+    if (val === ">" || val === "|") {
+      const afterKey = yaml.slice(m.index + m[0].length);
+      const lines = afterKey.split("\n");
+      const indented = [];
+      for (const line of lines) {
+        if (/^\s+\S/.test(line)) {
+          indented.push(line.trim());
+        } else if (indented.length > 0) {
+          break;
+        }
+      }
+      return indented.join(" ") || null;
+    }
+    return val.replace(/^["']|["']$/g, "");
+  };
+  return {
+    name: get("name"),
+    description: get("description"),
+    command: get("command"),
+    argumentHint: get("argumentHint"),
+  };
+}
+
+/**
+ * Generate thin command wrapper files for slash command discoverability.
+ *
+ * Reads `command` field from each SKILL.md frontmatter in the bundle and
+ * creates a corresponding .md file in the commands directory. Apps like
+ * t3code discover commands via initializationResult().commands, which reads
+ * from ~/.claude/commands/ (user commands → /user:<name>).
+ *
+ * Each generated file is marked with <!-- yp-stack:generated --> so cleanup
+ * can remove them without touching user-created commands.
+ *
+ * @param {string} commandsPathAbsolute  Absolute path to commands dir (e.g. ~/.claude/commands)
+ * @returns {string[]}  List of created command file paths
+ */
+export function createCommandFiles(commandsPathAbsolute) {
+  const created = [];
+
+  for (const key of SKILL_KEYS) {
+    const m = key.match(/^skills\/yellowpages\/([^/]+)\/SKILL\.md$/);
+    if (!m) continue;
+
+    const skillName = m[1];
+    const fm = parseBundledFrontmatter(FILES[key]);
+    if (!fm || !fm.command) continue;
+
+    let frontmatter = `---\ndescription: ${fm.description || skillName}\n`;
+    if (fm.argumentHint) {
+      frontmatter += `argument-hint: ${fm.argumentHint}\n`;
+    }
+    frontmatter += "---\n";
+
+    const body = `${YP_COMMAND_MARKER}\nRun the ${skillName} skill. $ARGUMENTS\n`;
+
+    const dest = path.join(commandsPathAbsolute, `${skillName}.md`);
+    fs.mkdirSync(commandsPathAbsolute, { recursive: true });
+    fs.writeFileSync(dest, frontmatter + body, "utf-8");
+    created.push(dest);
+  }
+
+  return created;
+}
+
+/**
+ * Remove yp-stack-generated command files (identified by marker comment).
+ * Leaves user-created command files untouched.
+ *
+ * @param {string} commandsPathAbsolute  Absolute path to commands dir
+ */
+export function cleanCommandFiles(commandsPathAbsolute) {
+  try {
+    for (const entry of fs.readdirSync(commandsPathAbsolute)) {
+      if (!entry.endsWith(".md")) continue;
+      const filePath = path.join(commandsPathAbsolute, entry);
+      try {
+        const content = fs.readFileSync(filePath, "utf-8");
+        if (content.includes(YP_COMMAND_MARKER)) {
+          fs.unlinkSync(filePath);
+        }
+      } catch {}
+    }
+  } catch {}
+}
+
 /**
  * Install yellowpages files.
  *
@@ -151,6 +254,7 @@ export function createSkillSymlinks(skillPathAbsolute) {
  * @param {'full'|'skill'|'minimal'} options.scope
  * @param {'new'|'existing'|'monorepo'|'global'} options.projectType
  * @param {boolean} options.stateTracking
+ * @param {string|null} [options.commandsPathAbsolute]  Absolute path to commands dir (e.g. ~/.claude/commands). When provided, generates thin command wrappers for slash command discoverability.
  * @param {((absPath: string, status: 'created'|'skipped') => void) | null} [onFile]
  *   Called immediately after each file write with the absolute path and status.
  *   Callers should apply displayPath() before rendering to terminal.
@@ -158,7 +262,14 @@ export function createSkillSymlinks(skillPathAbsolute) {
  * @returns {{ created: string[], skipped: string[] }}
  */
 export function installFiles(
-  { skillPathAbsolute, governancePath, scope, projectType, stateTracking },
+  {
+    skillPathAbsolute,
+    governancePath,
+    scope,
+    projectType,
+    stateTracking,
+    commandsPathAbsolute = null,
+  },
   onFile = null,
 ) {
   const nonDestructive = projectType === "existing" || projectType === "monorepo";
@@ -167,6 +278,7 @@ export function installFiles(
   // Clean previous install for fresh installs (removes stale files from old versions)
   if (!nonDestructive) {
     cleanPreviousInstall(skillPathAbsolute);
+    if (commandsPathAbsolute) cleanCommandFiles(commandsPathAbsolute);
   }
 
   const created = [];
@@ -190,6 +302,12 @@ export function installFiles(
   if (scope !== "minimal") {
     const symlinks = createSkillSymlinks(skillPathAbsolute);
     created.push(...symlinks);
+  }
+
+  // Generate thin command wrappers for slash command discoverability (t3code, etc.)
+  if (commandsPathAbsolute && scope !== "minimal") {
+    const cmdFiles = createCommandFiles(commandsPathAbsolute);
+    created.push(...cmdFiles);
   }
 
   // Governance files → <governancePath>/...

@@ -236,6 +236,14 @@ export async function main() {
     governancePath = path.join(cwd, ".agents");
   }
 
+  // Command wrappers — only for Claude Code (other platforms lack ~/.X/commands/ support)
+  const commandsPathAbsolute =
+    platform === "claude"
+      ? isGlobal
+        ? path.join(os.homedir(), ".claude", "commands")
+        : path.join(rootDir, ".claude", "commands")
+      : null;
+
   const skillPathDisplay = isGlobal
     ? `~/${path.relative(os.homedir(), skillPathAbsolute)}/yellowpages/`
     : `${path.relative(cwd, skillPathAbsolute)}/yellowpages/`;
@@ -330,6 +338,7 @@ export async function main() {
         scope,
         projectType: isGlobal ? "new" : projectType,
         stateTracking,
+        commandsPathAbsolute,
       },
       onFile,
     );

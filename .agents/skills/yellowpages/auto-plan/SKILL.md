@@ -3,11 +3,11 @@ name: auto-plan
 description: Generate a TASKS.md task coordination file from a description of work, problem list, or requirements.
 ---
 
-# /auto-plan
+# /yp:auto-plan
 
-Generate a `TASKS.md` from any description of work. The output enables multi-agent parallel execution via the `/tasks` pickup protocol.
+Generate a `TASKS.md` from any description of work. The output enables multi-agent parallel execution via the `/yp:tasks` pickup protocol.
 
-**Usage:** `/auto-plan` then describe what needs to be built, or paste a list of requirements.
+**Usage:** `/yp:auto-plan` then describe what needs to be built, or paste a list of requirements.
 
 ## What Claude does
 

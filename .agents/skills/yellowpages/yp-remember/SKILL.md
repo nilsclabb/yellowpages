@@ -3,7 +3,7 @@ name: yp-remember
 description: Append a persistent note to CLAUDE.md Agent Notes section for future sessions.
 ---
 
-# /remember <fact>
+# /yp:remember <fact>
 
 Append a fact to CLAUDE.md. Persists across sessions.
 

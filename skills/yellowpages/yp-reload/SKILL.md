@@ -3,7 +3,7 @@ name: yp-reload
 description: Re-read CLAUDE.md and installed skills state into conversation context via tool use.
 ---
 
-# /reload
+# /yp:reload
 
 Re-read current state files and report. SessionStart hooks cannot re-fire mid-session — this command uses tool use to read the files directly and show their current state.
 

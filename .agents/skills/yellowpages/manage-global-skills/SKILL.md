@@ -3,7 +3,7 @@ name: manage-global-skills
 description: View and manage all globally installed skill libraries — inventory, install, remove, update.
 ---
 
-# /manage global skills
+# /yp:manage-global
 
 Full inventory and management of globally installed skills. The manifest (injected at session start) already has the summary — this skill gives the full picture and management actions.
 

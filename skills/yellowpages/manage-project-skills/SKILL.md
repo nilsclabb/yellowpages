@@ -3,7 +3,7 @@ name: manage-project-skills
 description: View and manage the current project's skill context — .agents/, CLAUDE.md, TASKS.md, and installed skills.
 ---
 
-# /manage project skills
+# /yp:manage-project
 
 Full inventory and management of what the agent sees in the current project.
 
@@ -20,7 +20,7 @@ Scan from `process.cwd()`:
 [1] Add a skill to this project
 [2] Remove a skill from this project
 [3] Edit project-context.md
-[4] View what agent loads on startup (/context)
+[4] View what agent loads on startup (/yp:context)
 [5] Open TASKS.md
 [6] Done
 ```

@@ -3,7 +3,7 @@ name: yp-context
 description: Full transparency view — everything injected into this session at startup.
 ---
 
-# /context
+# /yp:context
 
 Show everything the agent loaded at session start. Read-only.
 

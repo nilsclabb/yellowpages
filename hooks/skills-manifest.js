@@ -98,7 +98,7 @@ try {
     taskStates ? `TASKS.md: ${taskStates.done} done · ${taskStates.inProgress} in-progress · ${taskStates.pending} pending` : '',
   ].filter(Boolean).join(' · ');
   const projectLine = `[PROJECT: ${projectParts}]`;
-  const cmdLine = '[COMMANDS: /help /status /context /session /diagnose /scaffold /validate /compress /manage /remember /forget /notes /reload /tasks /auto-plan]';
+  const cmdLine = '[COMMANDS: /yp:help /yp:status /yp:context /yp:session /yp:diagnose /yp:scaffold /yp:validate /yp:compress /yp:manage-global /yp:manage-project /yp:remember /yp:forget /yp:notes /yp:reload /yp:tasks /yp:auto-plan /yp:upgrade]';
 
   process.stdout.write([ypLine, globalLine, projectLine, cmdLine].join('\n') + '\n');
 } catch {

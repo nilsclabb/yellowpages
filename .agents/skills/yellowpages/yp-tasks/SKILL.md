@@ -3,7 +3,7 @@ name: yp-tasks
 description: View, claim, and complete tasks in TASKS.md — multi-agent parallel task coordination.
 ---
 
-# /tasks
+# /yp:tasks
 
 Interact with `TASKS.md` task coordination file. Supports multi-agent parallel execution.
 
@@ -13,10 +13,10 @@ See `references/worktree-protocol.md` — non-negotiable.
 
 ## Commands
 
-- `/tasks` — show current state of TASKS.md
-- `/tasks pickup` — find and claim the next available task
-- `/tasks complete` — mark current claimed task [X] (only after merge confirmation)
-- `/tasks status` — summary: N done, N in-progress, N pending, N blocked
+- `/yp:tasks` — show current state of TASKS.md
+- `/yp:tasks pickup` — find and claim the next available task
+- `/yp:tasks complete` — mark current claimed task [X] (only after merge confirmation)
+- `/yp:tasks status` — summary: N done, N in-progress, N pending, N blocked
 
 ## State markers
 

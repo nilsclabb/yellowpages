@@ -3,7 +3,7 @@ name: yp-status
 description: Current session snapshot — caveman mode, active skills, project context, hook health.
 ---
 
-# /status
+# /yp:status
 
 Session snapshot. Read-only.
 
@@ -15,4 +15,4 @@ Session snapshot. Read-only.
 4. **Project** — `.agents/` present?, `CLAUDE.md` present?, `TASKS.md` state if present
 5. **Hook health** — verify `~/.claude/hooks/caveman-activate.js` and `~/.claude/hooks/skills-manifest.js` are readable
 
-Format as a compact table per section. If anything is missing or unreadable, append: "Run `/diagnose` to check and repair."
+Format as a compact table per section. If anything is missing or unreadable, append: "Run `/yp:diagnose` to check and repair."

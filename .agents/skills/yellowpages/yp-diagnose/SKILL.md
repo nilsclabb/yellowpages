@@ -3,7 +3,7 @@ name: yp-diagnose
 description: Scan all installed skills for yellowpages compliance violations and emit exact fix instructions.
 ---
 
-# /diagnose
+# /yp:diagnose
 
 Skill doctor. Scans all skills and emits violations as direct agent instructions — not just a report, but actionable steps the agent can execute immediately on "yes."
 

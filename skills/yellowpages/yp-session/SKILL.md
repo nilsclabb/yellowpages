@@ -3,7 +3,7 @@ name: yp-session
 description: Model info, estimated context pressure, and active hooks for current session.
 ---
 
-# /session
+# /yp:session
 
 Session metadata snapshot.
 
@@ -12,7 +12,7 @@ Session metadata snapshot.
 - **Model** — state current model identifier
 - **Context pressure** — heuristic estimate based on conversation turn count:
   - ≤10 turns: low
-  - 11–25 turns: moderate (consider `/compress` on memory files)
+  - 11–25 turns: moderate (consider `/yp:compress` on memory files)
   - 26–40 turns: elevated (consider fresh session for complex work)
   - 40+ turns: high (context degradation likely)
   Note: exact token counts are not available to the agent — this is a heuristic only

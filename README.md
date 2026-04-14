@@ -69,33 +69,55 @@ my-skill/
 ## What's in this repo
 
 ```
-skills/
-└── yellowpages/              ← Publishable skill (skills.sh discovery)
-    ├── SKILL.md
-    ├── INDEX.md
-    ├── references/           ← 15 reference files
-    └── scripts/
-        ├── init_skill.py         ← Scaffold a new skill
-        ├── package_skill.py      ← Package into .skill zip
-        └── quick_validate.py     ← Validate skill compliance
+skills/yellowpages/               ← All installable skills (single source of truth)
+    ├── SKILL.md                      ← Main cover page
+    ├── INDEX.md                      ← Skill discovery index
+    ├── SKILLS-INDEX.md               ← Utility command reference
+    ├── references/                   ← 15 core reference files
+    ├── scripts/                      ← Python utilities
+    │   ├── init_skill.py                 ← Scaffold a new skill
+    │   ├── package_skill.py              ← Package into .skill zip
+    │   └── quick_validate.py             ← Validate skill compliance
+    ├── caveman/                      ← Terse agent communication
+    ├── manage-global-skills/         ← Global skill library management
+    ├── manage-project-skills/        ← Project skill context management
+    ├── scaffold-skill/               ← Create new skills
+    ├── validate-skill/               ← Quality checklist
+    ├── yp-help/                      ← Quick reference card
+    ├── yp-status/                    ← Session health check
+    ├── yp-tasks/                     ← Task orchestration
+    ├── auto-plan/                    ← Generate TASKS.md from description
+    └── ... (24 skills total)
 
-packages/yp-stack/            ← NPM interactive installer
-    ├── bin/cli.js
-    └── src/
-        ├── index.js              ← Interactive setup flow
-        ├── platforms.js          ← Platform detection (8 agents)
-        ├── install.js            ← File installation logic
-        ├── content.js            ← Bundled skill content
-        └── caveman.js            ← Caveman mode hook installer
+packages/yp-stack/                ← NPM interactive installer (v0.2.0)
+    ├── bin/cli.js                    ← Entry point
+    ├── src/
+    │   ├── index.js                      ← Interactive setup flow
+    │   ├── platforms.js                  ← Platform detection (8 agents)
+    │   ├── install.js                    ← File installation logic
+    │   ├── skills-manager.js             ← SessionStart hook installer
+    │   ├── caveman.js                    ← Caveman mode installer
+    │   ├── content.js                    ← Generated: bundled skill content
+    │   └── hooks.js                      ← Generated: hook constants + version
+    ├── scripts/
+    │   └── bundle-content.js             ← Bundles skills/ + .agents/ + hooks/
+    └── test/
+        └── install.test.js               ← 14-test install verification suite
 
-.agents/                      ← Governance layer for this repo
-    ├── project-context.md        ← Repo constitution
-    ├── ETHOS.md                  ← Builder principles
-    ├── agents/                   ← Agent personas
-    ├── workflows/                ← Multi-step workflows
-    ├── checklists/               ← Quality gates
-    ├── templates/                ← Blank scaffolds
-    └── state/                    ← Cross-session learnings and gate status
+hooks/                            ← SessionStart hook source files
+    ├── skills-manifest.js            ← Skill inventory + manifest injection
+    ├── caveman-activate.js           ← Caveman mode activation
+    ├── caveman-mode-tracker.js       ← /caveman command tracking
+    └── install.sh                    ← Shell installer for repo cloners
+
+.agents/                          ← Governance layer (no skills — those live in skills/)
+    ├── project-context.md            ← Repo constitution
+    ├── ETHOS.md                      ← Builder principles
+    ├── agents/                       ← Agent personas
+    ├── workflows/                    ← Multi-step workflows
+    ├── checklists/                   ← Quality gates
+    ├── templates/                    ← Blank scaffolds
+    └── state/                        ← Cross-session learnings and gate status
 ```
 
 ---
@@ -104,14 +126,38 @@ packages/yp-stack/            ← NPM interactive installer
 
 The installer detects and configures for:
 
-- **Claude Code** — writes to `.claude/skills/` and optionally appends to `CLAUDE.md`
+- **Claude Code** — writes to `.claude/skills/`, optional `CLAUDE.md` integration, SessionStart hook
 - **Cursor** — writes to `.cursor/skills/`
-- **Windsurf** — writes to `.codeium/skills/`
-- **GitHub Copilot** — writes to `.github/skills/`
+- **Windsurf** — writes to `.codeium/windsurf/skills/`
+- **GitHub Copilot** — writes to `.copilot/skills/`
 - **Cline** — writes to `.cline/skills/`
 - **Roo Code** — writes to `.roo/skills/`
 - **OpenCode** — writes to `.opencode/skills/`
-- **Generic** — writes to `skills/` at the project root
+- **Generic** — writes to `.agents/skills/`
+
+Platform detection checks both the current directory and home directory, so Claude Code is always detected for global installs.
+
+---
+
+## Built-in skills
+
+`yp-stack` installs **24 skills** to `~/.claude/skills/yellowpages/` and a `skills-manifest.js` SessionStart hook that injects a compact skill index every session. Type `/yp:help` in any session to see all available commands.
+
+### Utility commands
+
+| Command | What it does |
+|---|---|
+| `/yp:help` | Quick reference card |
+| `/yp:status` | Session health check |
+| `/yp:context` | See everything the agent loaded at startup |
+| `/yp:session` | Model info and context pressure |
+| `/yp:manage-global` | Inventory and manage globally installed skill libraries |
+| `/yp:manage-project` | Inventory and manage current project's skill context |
+| `/yp:scaffold <name>` | Create new yellowpages-compliant skill |
+| `/yp:validate <path>` | Run quality checklist on any skill |
+| `/yp:diagnose` | Skill doctor — find and fix compliance issues |
+| `/yp:tasks` | View, claim, and complete tasks in TASKS.md |
+| `/yp:auto-plan` | Generate TASKS.md from a description of work |
 
 ---
 
@@ -149,22 +195,26 @@ When you run `npx yp-stack`, you choose:
 | Skill only | Skill + references + scripts |
 | Minimal | `SKILL.md` cover page only (preview) |
 
-`yp-stack` also installs **16 built-in utility skills** globally (`~/.claude/skills/yellowpages/`) and a `skills-manifest.js` SessionStart hook that injects a compact skill index every session. Type `/help` in any session to see all available commands.
-
 ---
 
 ## Development
 
-Quality scripts for `packages/yp-stack/`:
-
 ```bash
 cd packages/yp-stack
-bun lint        # oxlint — 0 errors required
-bun fmt:check   # oxfmt  — all files must be formatted
-bun fmt         # auto-fix formatting
+npm run bundle    # Regenerate content.js + hooks.js from source
+npm test          # Bundle + run 14-test install verification suite
+bun lint          # oxlint — 0 errors required
+bun fmt:check     # oxfmt  — all files must be formatted
+bun fmt           # auto-fix formatting
 ```
 
-Both `bun lint` and `bun fmt:check` must pass before marking any task in that package complete.
+### Key rules
+
+- **Single source of truth**: all skills live in `skills/yellowpages/`. Never duplicate into `.agents/`.
+- **After editing skills or hooks**: run `npm run bundle` to regenerate the installer.
+- **Generated files** (`src/content.js`, `src/hooks.js`) are gitignored — rebuilt by `npm run bundle` and CI `prepublishOnly`.
+- **Hook constants** are auto-generated from `hooks/` source files. Edit the source, re-bundle — no manual sync.
+- Both `bun lint` and `bun fmt:check` must pass before marking any task in that package complete.
 
 ---
 

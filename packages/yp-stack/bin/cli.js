@@ -7,10 +7,17 @@ import { uninstallCaveman } from "../src/caveman.js";
 import { detectPlatforms } from "../src/platforms.js";
 import { runConfigCli } from "../src/config.js";
 import { runTeamInit, modes as teamModes } from "../src/team-init.js";
+import { runSnoozeCli } from "../src/update-check.js";
 
 // ── config subcommand ────────────────────────────────────────────────────────
 if (process.argv[2] === "config") {
   const code = runConfigCli(process.argv.slice(3));
+  process.exit(code);
+}
+
+// ── snooze subcommand ────────────────────────────────────────────────────────
+if (process.argv[2] === "snooze") {
+  const code = runSnoozeCli(process.argv.slice(3));
   process.exit(code);
 }
 

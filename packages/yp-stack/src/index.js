@@ -9,6 +9,7 @@ import { installCaveman } from "./caveman.js";
 import { installSkillsManager } from "./skills-manager.js";
 import { isInteractive } from "./tty.js";
 import { splash, fillBar, customSpinner, celebration } from "./animations.js";
+import { resolveConfig, persistInstallChoices, configPath } from "./config.js";
 
 const _require = createRequire(import.meta.url);
 const { version: VERSION } = _require("../package.json");
@@ -19,13 +20,31 @@ const SCOPE_LABELS = {
   minimal: "Minimal",
 };
 
+// Treat a config value as "usable" only when the user has explicitly set it.
+// Unset keys fall back to DEFAULTS but we still prompt in that case so the
+// first-run experience is interactive.
+function fromConfig(cfg, key, allowed) {
+  const entry = cfg[key];
+  if (!entry || entry.source !== "set") return undefined;
+  if (!entry.value) return undefined;
+  if (allowed && !allowed.includes(entry.value)) return undefined;
+  return entry.value;
+}
+
 export async function main() {
   const cwd = process.cwd();
+  const reconfigure = process.argv.includes("--reconfigure");
+  const cfg = reconfigure ? { hasConfig: false } : resolveConfig();
 
   await splash(isInteractive);
 
   if (isInteractive) {
     console.log(`  ${pc.dim("Target:")} ${pc.cyan(cwd)}`);
+    if (cfg.hasConfig) {
+      console.log(
+        `  ${pc.dim("Config:")} ${pc.cyan(configPath())} ${pc.dim("(pass --reconfigure to override)")}`,
+      );
+    }
     console.log();
   }
 
@@ -33,22 +52,37 @@ export async function main() {
 
   const detected = detectPlatforms(cwd);
   const initialValue = detected.length > 0 ? detected[0] : "generic";
+  const configuredPlatform = fromConfig(
+    cfg,
+    "platform",
+    PLATFORMS.map((pl) => pl.value),
+  );
 
-  const platform = await p.select({
-    message: "Which platform are you using?",
-    options: PLATFORMS.map((pl) => ({
-      value: pl.value,
-      label: detected.includes(pl.value) ? pc.cyan(pl.name) : pl.name,
-      hint: pl.skillPath
-        ? `${pl.skillPath}/${detected.includes(pl.value) ? pc.green("✓ detected") : ""}`
-        : "enter path",
-    })),
-    initialValue,
-  });
+  let platform;
+  if (configuredPlatform) {
+    platform = configuredPlatform;
+    if (isInteractive) {
+      console.log(
+        `  ${pc.dim("Platform:")} ${pc.cyan(getPlatform(platform).name)} ${pc.dim("(from config)")}`,
+      );
+    }
+  } else {
+    platform = await p.select({
+      message: "Which platform are you using?",
+      options: PLATFORMS.map((pl) => ({
+        value: pl.value,
+        label: detected.includes(pl.value) ? pc.cyan(pl.name) : pl.name,
+        hint: pl.skillPath
+          ? `${pl.skillPath}/${detected.includes(pl.value) ? pc.green("✓ detected") : ""}`
+          : "enter path",
+      })),
+      initialValue,
+    });
 
-  if (p.isCancel(platform)) {
-    p.cancel("Installation cancelled.");
-    process.exit(0);
+    if (p.isCancel(platform)) {
+      p.cancel("Installation cancelled.");
+      process.exit(0);
+    }
   }
 
   // Custom path input
@@ -72,35 +106,58 @@ export async function main() {
 
   const platformDef = getPlatform(platform);
 
-  const installLocation = await p.select({
-    message: "Where should yellowpages be installed?",
-    options: [
-      {
-        value: "project",
-        label: "This project only",
-        hint: `${customPath || platformDef.skillPath || "."}/yellowpages/`,
-      },
-      {
-        value: "global",
-        label: "Globally (all projects)",
-        hint: `~/${path.relative(os.homedir(), platformDef.globalSkillPath || path.join(os.homedir(), ".agents", "skills"))}/yellowpages/`,
-      },
-    ],
-  });
+  const configuredLocation = fromConfig(cfg, "default_install_location", ["global", "project"]);
 
-  if (p.isCancel(installLocation)) {
-    p.cancel("Installation cancelled.");
-    process.exit(0);
+  let installLocation;
+  if (configuredLocation) {
+    installLocation = configuredLocation;
+    if (isInteractive) {
+      console.log(
+        `  ${pc.dim("Location:")} ${pc.cyan(installLocation === "global" ? "Global (all projects)" : "This project only")} ${pc.dim("(from config)")}`,
+      );
+    }
+  } else {
+    installLocation = await p.select({
+      message: "Where should yellowpages be installed?",
+      options: [
+        {
+          value: "project",
+          label: "This project only",
+          hint: `${customPath || platformDef.skillPath || "."}/yellowpages/`,
+        },
+        {
+          value: "global",
+          label: "Globally (all projects)",
+          hint: `~/${path.relative(os.homedir(), platformDef.globalSkillPath || path.join(os.homedir(), ".agents", "skills"))}/yellowpages/`,
+        },
+      ],
+    });
+
+    if (p.isCancel(installLocation)) {
+      p.cancel("Installation cancelled.");
+      process.exit(0);
+    }
   }
 
   const isGlobal = installLocation === "global";
 
   // ── Dynamic question counter ──
 
+  const configuredScope = fromConfig(cfg, "scope", ["full", "skill", "minimal"]);
+  const configuredStateTracking = fromConfig(cfg, "state_tracking", ["true", "false"]);
+
   const showIntegration = platformDef?.hasIntegration === true && !isGlobal;
   const showProjectType = !isGlobal;
-  const totalSteps = (showIntegration ? 1 : 0) + (showProjectType ? 1 : 0) + 2 + 1;
-  // integration (conditional) + projectType (conditional) + state + config + scope = total
+  const showScope = !configuredScope;
+  const showStateTracking = configuredStateTracking === undefined;
+  const totalSteps =
+    (showIntegration ? 1 : 0) +
+    (showProjectType ? 1 : 0) +
+    (showScope ? 1 : 0) +
+    (showStateTracking ? 1 : 0) +
+    1;
+  // integration (conditional) + projectType (conditional) + scope (conditional)
+  //   + state (conditional) + config = total
   let step = 0;
 
   function q(msg) {
@@ -135,29 +192,39 @@ export async function main() {
 
   // ── Install scope ──
 
-  const scope = await p.select({
-    message: q("What would you like to install?"),
-    options: [
-      {
-        value: "full",
-        label: "Full stack",
-        hint: "skill + references, scripts, workflows, checklists, templates, state",
-      },
-      {
-        value: "skill",
-        label: "Skill only",
-        hint: "skill + references and scripts",
-      },
-      {
-        value: "minimal",
-        label: "Minimal",
-        hint: "SKILL.md cover page only (preview)",
-      },
-    ],
-  });
-  if (p.isCancel(scope)) {
-    p.cancel("Installation cancelled.");
-    process.exit(0);
+  let scope;
+  if (configuredScope) {
+    scope = configuredScope;
+    if (isInteractive) {
+      console.log(
+        `  ${pc.dim("Scope:")}    ${pc.cyan(SCOPE_LABELS[scope])} ${pc.dim("(from config)")}`,
+      );
+    }
+  } else {
+    scope = await p.select({
+      message: q("What would you like to install?"),
+      options: [
+        {
+          value: "full",
+          label: "Full stack",
+          hint: "skill + references, scripts, workflows, checklists, templates, state",
+        },
+        {
+          value: "skill",
+          label: "Skill only",
+          hint: "skill + references and scripts",
+        },
+        {
+          value: "minimal",
+          label: "Minimal",
+          hint: "SKILL.md cover page only (preview)",
+        },
+      ],
+    });
+    if (p.isCancel(scope)) {
+      p.cancel("Installation cancelled.");
+      process.exit(0);
+    }
   }
 
   // ── Project type (project installs only) ──
@@ -196,13 +263,23 @@ export async function main() {
 
   // ── State tracking ──
 
-  const stateTracking = await p.confirm({
-    message: q("Enable cross-session state tracking?"),
-    initialValue: scope === "full",
-  });
-  if (p.isCancel(stateTracking)) {
-    p.cancel("Installation cancelled.");
-    process.exit(0);
+  let stateTracking;
+  if (configuredStateTracking !== undefined) {
+    stateTracking = configuredStateTracking === "true";
+    if (isInteractive) {
+      console.log(
+        `  ${pc.dim("State:")}    ${pc.cyan(stateTracking ? "enabled" : "disabled")} ${pc.dim("(from config)")}`,
+      );
+    }
+  } else {
+    stateTracking = await p.confirm({
+      message: q("Enable cross-session state tracking?"),
+      initialValue: scope === "full",
+    });
+    if (p.isCancel(stateTracking)) {
+      p.cancel("Installation cancelled.");
+      process.exit(0);
+    }
   }
 
   // ── Config file ──
@@ -362,6 +439,29 @@ export async function main() {
     if (integrationStyle === "project-instructions" && !isGlobal) {
       appendToInstructions(rootDir, "CLAUDE.md");
       result.created.push("CLAUDE.md (appended)");
+    }
+
+    // Persist install choices to ~/.yellowpages/config.yaml so future runs
+    // in new repos short-circuit the matching prompts. Only writes keys
+    // the user has not already set.
+    try {
+      const persisted = persistInstallChoices({
+        platform,
+        scope,
+        default_install_location: installLocation,
+        state_tracking: stateTracking ? "true" : "false",
+      });
+      if (persisted.length > 0 && isInteractive) {
+        process.stdout.write(
+          "  " +
+            pc.dim(
+              `Saved defaults to ${configPath()} (${persisted.join(", ")}). Override with --reconfigure.`,
+            ) +
+            "\n",
+        );
+      }
+    } catch {
+      // Config persistence is best-effort — never fail the install.
     }
 
     // Act 3: completion burst

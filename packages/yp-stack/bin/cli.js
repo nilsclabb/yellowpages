@@ -4,6 +4,13 @@ import fs from "node:fs";
 import { main } from "../src/index.js";
 import { uninstallCaveman } from "../src/caveman.js";
 import { detectPlatforms } from "../src/platforms.js";
+import { runConfigCli } from "../src/config.js";
+
+// ── config subcommand ────────────────────────────────────────────────────────
+if (process.argv[2] === "config") {
+  const code = runConfigCli(process.argv.slice(3));
+  process.exit(code);
+}
 
 // ── --uninstall caveman ──────────────────────────────────────────────────────
 if (process.argv.includes("--uninstall") && process.argv.includes("caveman")) {

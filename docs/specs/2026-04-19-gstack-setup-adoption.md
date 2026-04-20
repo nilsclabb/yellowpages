@@ -33,8 +33,7 @@ Three sequenced phases, each independently shippable:
 1. **Phase 1 — Global config file** at `~/.yellowpages/config.yaml` managed by a small `yp config` subcommand. First-run installer writes the config. Subsequent runs short-circuit any prompt whose answer already lives in config.
 2. **Phase 2 — Team mode** via `npx yp-stack --team {optional|required}`. Writes a small enforcement kit into the project repo (`CLAUDE.md` section, `.claude/hooks/check-yp.sh`, `.claude/settings.json` PreToolUse hook, `.gitignore` entry) instead of vendoring skills. Teammates pull commits, run `npx yp-stack` once globally, and the hook is satisfied.
 3. **Phase 3 — Throttled update check** integrated into the existing `hooks/skills-manifest.js` SessionStart hook. One-line output on upgrade available, cached with 60/720-minute TTL split and level-based snooze.
-
-Phase 4 (host config abstraction in the `hosts/*.ts` style) is documented as out of scope here and revisited when platform content actually diverges.
+4. **Phase 4 — Host config abstraction** in `packages/yp-stack/src/hosts/*.js` with a registry at `hosts/index.js`. Migrated the inline `PLATFORMS` array into per-host modules, added a JSDoc-typed `HostConfig` contract + registry validator, and generalized the Claude-only slash-commands path via `hasCommandsSupport` + `commandsSubdir`. `src/platforms.js` remains as a back-compat shim so existing call sites keep working.
 
 ---
 
@@ -146,11 +145,15 @@ The `--team` flag changes what gets written into the project repo. The global in
 
 **New command:** `yp snooze [level]` — bumps snooze level (default 1). `yp snooze reset` clears the file.
 
-### Phase 4 (Deferred) — Host Config Abstraction
+### Phase 4 — Host Config Abstraction
 
-Documented here for planning continuity. **Not implemented in this spec.**
+Shipped alongside Phases 1–3 in `yp-stack 0.5.x`.
 
-When platform content meaningfully diverges (e.g. Cursor needs different frontmatter fields than Claude), migrate `packages/yp-stack/src/platforms.js` into per-host TypeScript (or JSDoc-typed JS) modules at `packages/yp-stack/src/hosts/*.js` with a registry at `hosts/index.js`. Mirror gstack's derived-union-type pattern for compile-time host name safety. Revisit after Phase 1–3 ship and platform divergence is observed.
+Migrated the inline `PLATFORMS` array in `packages/yp-stack/src/platforms.js` into per-host JSDoc-typed modules at `packages/yp-stack/src/hosts/<name>.js`, registered via `packages/yp-stack/src/hosts/index.js`. Each module exports a `HostConfig` object and the registry module exposes `ALL_HOSTS`, `HOST_MAP`, `HOST_NAMES`, `getHost(name)`, and `detectHosts(cwd)`. A JSDoc `@typedef` + `validateAllHostConfigs()` give us the runtime safety equivalent to gstack's TypeScript derived-union pattern without adding a build step.
+
+`src/platforms.js` becomes a thin back-compat shim so existing call sites (`index.js`, `skills-manager.js`, `bin/cli.js`, `test/install.test.js`) keep working. New fields `hasCommandsSupport` + `commandsSubdir` let hosts opt into the slash-command wrapper surface declaratively — the previous `platform === "claude"` check in `index.js` is gone.
+
+Follow-up (not in scope): move remaining call sites off the shim; add per-host frontmatter/rewrite hooks only when a second host actually ships differing content.
 
 ---
 
@@ -295,7 +298,6 @@ skills/yellowpages/SKILL.md
 
 ## Out of Scope
 
-- Host config abstraction (`hosts/*.ts` style) — Phase 4, separate spec when needed.
 - Replacing `npx yp-stack` with a `git clone` install model.
 - Supabase telemetry, analytics pings, or community dashboards.
 - Caveman intensity CLI flag (already handled by existing `/caveman` command).
@@ -311,7 +313,7 @@ skills/yellowpages/SKILL.md
 3. Ship Phase 2 (team mode) as `yp-stack 0.7.0`. Document migration path in release notes.
 4. Migrate this repo's own `.claude/` via `--team required` as the first production use.
 5. Ship Phase 3 (update check) as `yp-stack 0.8.0`. Bump VERSION in `package.json` to force one initial check cycle.
-6. Phase 4 considered for `yp-stack 0.9.0` only if platform divergence materializes.
+6. Ship Phase 4 (host config abstraction) in the same `0.5.x` line as Phases 1–3 — pure refactor + additive `hasCommandsSupport` field, back-compat shim preserves existing call sites.
 
 ---
 

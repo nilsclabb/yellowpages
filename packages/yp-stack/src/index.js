@@ -313,12 +313,14 @@ export async function main() {
     governancePath = path.join(cwd, ".agents");
   }
 
-  // Command wrappers — only for Claude Code (other platforms lack ~/.X/commands/ support)
+  // Command wrappers — only for hosts that expose a `~/.X/commands/` surface.
+  // Driven by hasCommandsSupport + commandsSubdir on the host config so new
+  // hosts can opt in without editing this file.
   const commandsPathAbsolute =
-    platform === "claude"
+    platformDef.hasCommandsSupport && platformDef.commandsSubdir
       ? isGlobal
-        ? path.join(os.homedir(), ".claude", "commands")
-        : path.join(rootDir, ".claude", "commands")
+        ? path.join(os.homedir(), platformDef.commandsSubdir)
+        : path.join(rootDir, platformDef.commandsSubdir)
       : null;
 
   const skillPathDisplay = isGlobal

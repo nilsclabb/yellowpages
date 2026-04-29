@@ -7,6 +7,7 @@ Master listing of all skills in this package. Read this before scanning individu
 | Skill | Triggers when... | Covers |
 |---|---|---|
 | `yellowpages` | "create a skill", "scaffold skill", "skill standard", "workflow", "learnings" | Skill creation, authoring, packaging, navigation, documentation, agents, workflows, state |
+| `pr-code-review` | "review this PR", "audit this branch", "make this branch review-ready", "/pr-code-review" | PR review workflow — recurring mistakes, terse comments, verification, CI closeout |
 | `caveman` | "terse mode", "caveman", "toggle verbosity", "/caveman" | Terse agent communication — on by default, toggle anytime |
 | `react-patterns` | "useEffect", "form sync", "form state", "key-based remount", "react pattern" | Approved React patterns — what not to do and why, with before/after code |
 

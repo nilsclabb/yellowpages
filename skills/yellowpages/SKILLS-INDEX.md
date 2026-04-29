@@ -40,6 +40,12 @@ All yp-stack skills. Commands derived from `command` field in each SKILL.md fron
 |---|---|---|
 | `yp-upgrade` | `/yp:upgrade` | Update yp-stack to latest version |
 
+## Review & Quality
+
+| Skill | Command | When to use |
+|---|---|---|
+| `pr-code-review` | `/pr-code-review` | Review PRs for recurring mistakes, terse comments, verification, and CI closeout |
+
 ## Domain Skills
 
 | Skill | Command | When to use |

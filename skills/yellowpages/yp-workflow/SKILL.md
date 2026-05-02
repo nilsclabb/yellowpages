@@ -1,28 +1,31 @@
 ---
 name: yp-workflow
-description: Use for normal coding-session workflow requests: designing, planning, executing tasks, verifying completion, or reviewing code.
+description: Use for normal software-building workflow requests. Routes work into the six-stage lifecycle: frame, design, plan, execute, verify, review.
 ---
 
 # Workflow Router
 
-Route software-engineering work through the right process skill. This is the default category for normal coding requests.
+Route software-engineering work through the right core workflow stage. This is the default category for normal coding requests.
 
 ## Routing Table
 
 | User intent | Load |
 |---|---|
-| Build, change behavior, design a feature, ask "how should we..." | `yp-brainstorm` |
-| Approved spec, clear requirements, "plan this" | `yp-auto-plan` |
-| Execute or pick up `TASKS.md` work | `yp-tasks` |
-| Claim done/fixed/passing/ready | `yp-verify` |
-| Review PR, branch, diff, or merge readiness | `pr-code-review` |
+| Clarify the request, assumptions, scope, or success criteria | `yp-workflow-frame` |
+| Compare approaches or shape the design | `yp-workflow-design` |
+| Turn approved scope into an implementation plan | `yp-workflow-plan` |
+| Carry out approved work or coordinated tasks | `yp-workflow-execute` |
+| Claim done, fixed, passing, or ready | `yp-workflow-verify` |
+| Review correctness, readiness, or PR quality | `yp-workflow-review` |
 
 ## Rule
 
-Load exactly one matching workflow skill first. If the request also needs stack-specific guidance, load `yp-stack-router` only after the workflow skill says implementation can begin.
+Load exactly one matching workflow stage first. Keep the core lean: if a stage needs extra tactics, load an optional `yp-workflow-*` capability only when the situation warrants it.
 
-## Chain
+If the request also needs stack-specific guidance, load `yp-stack-router` only after the workflow stage says implementation can begin.
+
+## Lifecycle
 
 ```text
-yp-brainstorm -> yp-auto-plan -> yp-tasks -> yp-verify
+frame -> design -> plan -> execute -> verify -> review
 ```

@@ -24,12 +24,46 @@ The important rule is: load one step at a time and stop as soon as there is enou
 
 | Router | Use for |
 |---|---|
-| `yp-workflow` | Normal coding-session work: design, plan, execute, verify, review |
+| `yp-workflow` | Normal coding-session work: frame, design, plan, execute, verify, review |
 | `yp-skill-system` | Yellowpages itself: authoring, validation, diagnostics, skill management |
 | `yp-stack-router` | Stack/domain guidance: Convex, React, UI, monorepos, preferred tooling |
 | `yp-session-tools` | Help, status, injected context, notes, reloads, compression |
 
 `yp-workflow` is the default for normal software-engineering requests. `yp-stack-router` is opt-in for stack, framework, architecture, or tooling questions.
+
+## Workflow Model
+
+The software-building workflow is now a tiny default core with optional capabilities:
+
+```text
+using-yellowpages -> yp-workflow -> core stage -> optional capability -> reference
+```
+
+### Core stages
+
+| Stage | Skill | Purpose |
+|---|---|---|
+| Frame | `yp-workflow-frame` | clarify the request, assumptions, and success criteria |
+| Design | `yp-workflow-design` | compare approaches and define the simplest sufficient design |
+| Plan | `yp-workflow-plan` | turn approved scope into an implementation plan |
+| Execute | `yp-workflow-execute` | perform the work with minimal, surgical changes |
+| Verify | `yp-workflow-verify` | require fresh evidence before completion claims |
+| Review | `yp-workflow-review` | inspect correctness, readiness, and review feedback |
+
+### Optional workflow capabilities
+
+These are loaded only when useful, not by default:
+
+- `yp-workflow-subagents`
+- `yp-workflow-parallel-agents`
+- `yp-workflow-git-worktrees`
+- `yp-workflow-tdd`
+- `yp-workflow-debugging`
+- `yp-workflow-review-loops`
+- `yp-workflow-handoffs`
+
+Legacy workflow skills remain for compatibility during the transition:
+`yp-brainstorm`, `yp-auto-plan`, `yp-tasks`, `yp-verify`, `pr-code-review`.
 
 ## Install
 
@@ -100,7 +134,8 @@ skills/yellowpages/       installable skills, single source of truth
   INDEX.md                audit/discovery index
   references/             core reference files
   scripts/                validation and utility scripts
-  <skill-name>/           leaf skills
+  yp-workflow-*/          workflow core + optional capability leaf skills
+  <skill-name>/           other leaf skills
 
 .agents/                 governance: agents, workflows, checklists, templates, state
 .claude-plugin/          Claude plugin metadata
@@ -145,7 +180,7 @@ python3 skills/yellowpages/scripts/quick_validate.py --all skills/yellowpages
 Expected result for the current tree:
 
 ```text
-Results: 31 passed, 0 failed, 31 total
+Results: 44 passed, 0 failed, 44 total
 ```
 
 Validate native manifests and hooks:

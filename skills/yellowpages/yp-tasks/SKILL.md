@@ -1,11 +1,11 @@
 ---
 name: yp-tasks
-description: View, claim, and complete tasks in TASKS.md — multi-agent parallel task coordination.
+description: Execution helper for task coordination in TASKS.md. Use from `yp-workflow-execute` when work benefits from explicit task claiming, status tracking, or worktree-aware coordination.
 ---
 
 # Tasks
 
-Interact with `TASKS.md` task coordination file. Supports multi-agent parallel execution.
+Interact with `TASKS.md` as an execution helper. This skill is no longer a primary workflow stage; it supports `yp-workflow-execute`.
 
 ⚠️ WORKTREE RULE: Every worktree MUST be merged back to its origin branch
 before marking a task [X]. Marking [X] without merging = incomplete work.
@@ -17,6 +17,12 @@ See `references/worktree-protocol.md` — non-negotiable.
 - `yp-tasks pickup` — find and claim the next available task
 - `yp-tasks complete` — mark current claimed task [X] (only after merge confirmation)
 - `yp-tasks status` — summary: N done, N in-progress, N pending, N blocked
+
+## Use When
+
+- the plan has explicit task units
+- multiple agents may coordinate through one task file
+- worktree-aware claiming and completion matter
 
 ## State markers
 

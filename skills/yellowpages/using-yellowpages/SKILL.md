@@ -28,7 +28,7 @@ Do not preload the library. Pick one category router, load it with the platform'
 
 | User intent | Load first |
 |---|---|
-| Normal coding-session work: build, design, plan, execute, verify, review | `yp-workflow` |
+| Normal coding-session work: frame, design, plan, execute, verify, review | `yp-workflow` |
 | Yellowpages itself: author skills, validate, diagnose, manage skill libraries | `yp-skill-system` |
 | Stack/domain guidance: Convex, React, UI, monorepo, preferred stack | `yp-stack-router` |
 | Session utilities: help, status, context, notes, reload, compression | `yp-session-tools` |

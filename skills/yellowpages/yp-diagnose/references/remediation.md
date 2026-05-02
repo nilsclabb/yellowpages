@@ -58,4 +58,4 @@ When agent executes on "yes":
 4. CREATE index entries
 5. REMOVE auxiliary docs
 6. FIX frontmatter
-7. Run /validate skill <path> to confirm all checks now pass
+7. Run `validate-skill` on `<path>` to confirm all checks now pass

@@ -15,7 +15,8 @@ used in a skill or reference file.
 | INDEX.md | ≤ 30-line master listing. One row per skill: name, trigger phrase, scope. |
 | App Data Dir | Agent's persistent storage directory for session artifacts. Platform-specific. |
 | Brain Directory | `<appDataDir>/brain/` — stores per-conversation documents (plans, tasks, walkthroughs). |
-| Committed Plan | Plan saved to `docs/superpowers/plans/` — repo-persistent, visible across sessions. |
+| Committed Spec | Design doc saved to `docs/specs/YYYY-MM-DD-<topic>-design.md` by `yp-brainstorm` — repo-persistent, the source of truth for a plan. |
+| Committed Plan | Implementation plan saved to `docs/plans/YYYY-MM-DD-<feature>.md` by `yp-auto-plan` — repo-persistent, visible across sessions. |
 | Ephemeral Plan | Plan saved to `brain/<conversation-id>/` — session-scoped, not committed to the repo. |
 | Gate | Required checkpoint in a workflow. Stored in `.agents/state/<workflow>/gates.json`. Must pass before proceeding. |
 | Persona File | `.agents/agents/*.md` — defines a named agent role with principles and default workflow. Session-scoped. |

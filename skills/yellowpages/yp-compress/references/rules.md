@@ -1,6 +1,6 @@
 # Compress — Rules Reference
 
-## Rewrite (apply terse caveman-style to prose)
+## Rewrite (apply terse style to prose)
 
 - Drop articles: a, an, the
 - Drop filler: just, really, basically, essentially, simply, very, quite

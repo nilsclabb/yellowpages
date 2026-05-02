@@ -1,41 +1,32 @@
 ---
 name: yp-help
-description: Quick reference card for all yp-stack commands, caveman modes, and installed skills.
-command: /yp:help
+description: Use when the user asks what yellowpages can do or how to find the right yellowpages skill.
 ---
 
-# /yp:help
+# Yellowpages Help
 
-Quick reference for the yp-stack. One-shot display.
+Quick reference for yellowpages native skill usage.
 
-## yp-stack Commands
+## Runtime Model
 
-| Command | What it does |
+Only `using-yellowpages` is injected at session start. Everything else is loaded on demand through the platform's native skill tool.
+
+## Chat Commands
+
+| Command | What it means |
 |---|---|
-| `/yp:help` | This card |
-| `/yp:status` | Session snapshot — caveman mode, skills, project context, hook health |
-| `/yp:context` | Everything injected at session start |
-| `/yp:session` | Model, estimated context pressure, active hooks |
-| `/yp:reload` | Re-read CLAUDE.md and skills state via tool use |
-| `/yp:notes` | Print CLAUDE.md contents |
-| `/yp:remember <fact>` | Append persistent note to CLAUDE.md Agent Notes |
-| `/yp:forget <fact>` | Remove note from CLAUDE.md Agent Notes |
-| `/yp:diagnose` | Scan all skills for yellowpages compliance issues |
-| `/yp:scaffold <name>` | Create new yellowpages-compliant skill |
-| `/yp:validate <path>` | Run quality checklist on any skill |
-| `/yp:compress <file>` | Rewrite memory file in terse form (~46% token reduction) |
-| `/yp:manage-global` | Inventory + manage globally installed skill libraries |
-| `/yp:manage-project` | Inventory + manage current project skill context |
-| `/yp:tasks` | View, claim, and complete tasks in TASKS.md |
-| `/yp:auto-plan` | Generate TASKS.md from a description of work |
-| `/yp:upgrade` | Update yp-stack to latest version |
+| `/yellowpages` | Route the current request through yellowpages |
+| `/yp` | Alias for `/yellowpages` |
 
-## Caveman Modes
+Commands are intent shortcuts, not the skill registry.
 
-| Command | Effect |
+## Core Skills
+
+| Need | Skill |
 |---|---|
-| `/yp:caveman` | Full mode (default) |
-| `/yp:caveman full` | Full mode (explicit) |
-| `/yp:caveman lite` | Drop filler, keep grammar |
-| `/yp:caveman ultra` | Maximum compression |
-| `"stop caveman"` | Normal prose (session-local on non-Claude Code) |
+| Choose the right skill | `using-yellowpages` |
+| Create or maintain skills | `yellowpages` |
+| Design before building | `yp-brainstorm` |
+| Turn approved specs into plans | `yp-auto-plan` |
+| Execute task files | `yp-tasks` |
+| Verify before completion claims | `yp-verify` |

@@ -1,15 +1,13 @@
 ---
 name: validate-skill
 description: Run the yellowpages quality checklist against a skill and report pass/fail per criterion.
-command: /yp:validate
-argumentHint: "<path>"
 ---
 
-# /yp:validate <path>
+# Validate Skill
 
-Run quality checks on a skill. Read-only — does not fix issues. Use `/yp:diagnose` for auto-remediation.
+Run quality checks on a skill. Read-only — does not fix issues.
 
-**Usage:** `/yp:validate .agents/skills/yellowpages/my-skill`
+Invoke this skill with a path such as `skills/yellowpages/my-skill`.
 
 ## What Claude does
 
@@ -17,7 +15,7 @@ Run quality checks on a skill. Read-only — does not fix issues. Use `/yp:diagn
 2. Run all checks from `references/checks.md` in order
 3. For each failure: report the criterion, the actual value, and the line number
 4. Summary line: "✅ [N] passed · ❌ [N] failed · ⚠️ [N] warnings"
-5. If failures: "Run `/yp:diagnose` to generate step-by-step fix instructions."
+5. If failures: suggest using `yp-diagnose` to generate step-by-step fix instructions
 
 ## References
 

@@ -1,0 +1,6 @@
+{
+  "name": "yellowpages",
+  "description": "Progressive-disclosure skill library for LLM-friendly skill authoring, routing, planning, and project workflows",
+  "version": "0.6.0",
+  "contextFileName": "GEMINI.md"
+}

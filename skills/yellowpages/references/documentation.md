@@ -1,97 +1,71 @@
 # Documentation Standard
 
-This file defines how planning work should be documented. Apply this standard on any task that warrants an implementation plan.
+This file defines where planning and work artifacts live. Never write plan, task, walkthrough, or scratch files to the repo root.
 
-## The Three Documents
+## Path Rules
 
-### `implementation_plan.md` — Design & Approval
+| Document | Ephemeral path | Committed path |
+|---|---|---|
+| Implementation plan | `.agents/state/plans/<slug>/implementation_plan.md` | `docs/plans/YYYY-MM-DD-NN-name.md` |
+| Task tracker | `.agents/state/plans/<slug>/task.md` | `TASKS.md` when coordinating agents |
+| Walkthrough | `.agents/state/plans/<slug>/walkthrough.md` | `docs/plans/YYYY-MM-DD-NN-name-walkthrough.md` |
+| Scratch files | `.agents/state/plans/<slug>/scratch/` | never committed |
 
-**Purpose:** Communicate a technical plan to the user for review before executing.
+`<slug>` = short kebab-case description of the work.
 
-**When to create:** Any task requiring architectural decisions, multiple file changes, or significant ambiguity.
+Use ephemeral paths for session-local work. Commit artifacts only when they span sessions, guide subagents, or document architectural decisions.
 
-**Required sections:**
+## Implementation Plans
+
+Create when work requires architecture decisions, multiple file changes, or user approval before execution.
+
+Required sections:
 
 ```markdown
 # [Goal]
-Brief description of the problem and what the change accomplishes.
 
 ## User Review Required
-Breaking changes, design decisions, open questions — use GitHub alerts.
+Breaking changes, design decisions, open questions.
 
 ## Proposed Changes
-Grouped by component. Files marked [MODIFY], [NEW], or [DELETE].
+Grouped by component. Mark files [MODIFY], [NEW], or [DELETE].
 
 ## Verification Plan
-How you'll confirm the changes worked.
+How the work will be checked.
 ```
 
-**Where to save:** `<appDataDir>/brain/<conversation-id>/implementation_plan.md`
+## Task Trackers
 
----
+Use checkbox markers:
 
-### `task.md` — Execution Tracker
-
-**Purpose:** A living TODO list to track progress during execution.
-
-**When to create:** After the user approves an implementation plan.
-
-**Format:**
 ```markdown
-- `[ ]` not started
-- `[/]` in progress
-- `[x]` completed
+- [ ] not started
+- [/] in progress
+- [x] completed
+- [!] blocked
 ```
 
-Update continuously: mark `[/]` when starting, `[x]` when done.
+Update continuously. Mark `[x]` only after verification.
 
-**Where to save:** `<appDataDir>/brain/<conversation-id>/task.md`
+## Walkthroughs
 
----
+Use for post-work summaries. Include:
 
-### `walkthrough.md` — Post-Work Summary
-
-**Purpose:** Summarize what was built, tested, and verified. Update rather than replace for follow-up work.
-
-**Include:**
-- Summary of changes made
-- How changes were tested/verified
-- Embedded screenshots or recordings of UI changes
-
-**Where to save:** `<appDataDir>/brain/<conversation-id>/walkthrough.md`
-
----
+- what changed,
+- what was tested,
+- what remains risky,
+- screenshots or recordings for UI work.
 
 ## Scratch Files
 
 Temporary scripts, debug outputs, and one-off data files go in:
+
+```text
+.agents/state/plans/<slug>/scratch/
 ```
-<appDataDir>/brain/<conversation-id>/scratch/
-```
 
-Do not save scratch files in the project workspace.
+Delete scratch files when they no longer explain or reproduce the work.
 
-## Artifacts vs. Direct Responses
+## Direct Responses
 
-Use an artifact (markdown file) for: reports, tables, plans, walkthroughs, content you'll update over time.
-
-Respond directly (no artifact) for: short answers, questions, single-paragraph explanations.
-
----
-
-## Committed Plans (Repo-Persistent)
-
-For plans that span multiple sessions, serve as subagent context, or document architectural decisions:
-
-**Location:** `docs/superpowers/plans/YYYY-MM-DD-NN-name.md`
-`NN` = two-digit sequential number per date (`01`, `02`, …).
-
-**Structure:**
-
-    # [Feature] Implementation Plan
-    Goal / Architecture / Tech Stack
-    ## File Map — table of files + responsibilities
-    ## Phase N: [Name] — steps with acceptance criteria
-    ## Risks + Mitigations / Success Metrics / File Touch List
-
-Use ephemeral plans for exploratory or short-lived work. Commit when the plan spans sessions or needs to be subagent-readable.
+Respond directly, with no artifact, for short answers, single-file explanations, tiny edits, or quick factual checks.

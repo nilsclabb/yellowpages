@@ -20,9 +20,9 @@ Run through before marking scaffold complete. All criteria must pass.
 
 ## Index check
 
-- [ ] Entry added to `SKILLS-INDEX.md` (or `INDEX.md` if applicable)
+- [ ] Entry added to `INDEX.md`
 
-## Mirror check
+## Source check
 
-- [ ] `skills/yellowpages/<name>/` exists and is identical to `.agents/` version
-- [ ] `diff .agents/skills/yellowpages/<name>/ skills/yellowpages/<name>/` → no output
+- [ ] `skills/yellowpages/<name>/` exists
+- [ ] No duplicate copy exists under `.agents/skills/`

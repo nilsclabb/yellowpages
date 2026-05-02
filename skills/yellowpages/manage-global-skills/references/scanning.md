@@ -10,10 +10,7 @@
 
 ## Identifying library ownership
 
-**yellowpages skills** — directory name matches a known yp-stack skill name:
-`caveman`, `yp-help`, `yp-status`, `yp-context`, `yp-session`, `yp-reload`,
-`yp-notes`, `yp-remember`, `yp-forget`, `manage-global-skills`, `manage-project-skills`,
-`scaffold-skill`, `validate-skill`, `yp-diagnose`, `yp-compress`, `yp-tasks`, `auto-plan`
+**yellowpages skills** — library directory is named `yellowpages`, or a skill path resolves under an installed `yellowpages/skills/yellowpages` tree.
 
 **superpowers skills** — `enabledPlugins` contains a key matching `superpowers@*`;
 skills are in `~/.claude/plugins/cache/claude-plugins-official/superpowers/<version>/skills/`

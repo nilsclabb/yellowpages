@@ -20,8 +20,6 @@ Every SKILL.md must follow this structure in order:
 ---
 name: skill-name
 description: [what it does] + [when to trigger it — be comprehensive]
-command: /yp:skill-name
-argumentHint: "<arg>"
 ---
 
 # Skill Title
@@ -51,7 +49,7 @@ The description or body may add one optional "Quick Start" section with a short 
 - A different team or repo might install it separately
 - It has its own scripts, assets, or reference files
 
-**Never nest** skill folders inside other skill folders. Sibling skills live flat in `.agents/skills/`.
+**Never nest** skill folders inside other skill folders. Sibling skills live flat in `skills/yellowpages/`.
 
 ## Linking Syntax
 

@@ -5,7 +5,6 @@ description: >
   quality, clean diffs, tests, CI readiness, and PR closeout. Use when: reviewing
   a PR, auditing a branch, resolving anticipated PR comments, making a branch
   review-ready, checking for recurring review patterns, or invoking /pr-code-review.
-command: /pr-code-review
 ---
 
 # PR Code Review

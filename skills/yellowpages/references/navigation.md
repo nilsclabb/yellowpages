@@ -6,7 +6,7 @@ This file defines how agents should navigate between skills, sub-files, docs, an
 
 1. **Read the cover page first.** Always start with `SKILL.md`. The reference map tells you what exists and when to read each file.
 2. **Follow only the branch you need.** If the user's task matches one reference file, read only that file. Do not pre-emptively read siblings.
-3. **Check INDEX.md before searching.** When you need a skill but aren't sure which one, read `INDEX.md` (≤ 30 lines) rather than scanning all SKILL.md files.
+3. **Use category routers before INDEX.md.** Runtime routing starts at `using-yellowpages`, then one category router. Use `INDEX.md` for audits and maintenance.
 4. **One level at a time.** Read the cover page → decide if a reference is needed → read that reference → decide if it links further. Never load entire skill trees speculatively.
 
 ## Codebase Navigation Protocol
@@ -24,13 +24,19 @@ When exploring an unfamiliar codebase:
 
 ## Documentation Navigation
 
-**Committed plans** (repo-persistent, visible to future agents):
+**Committed specs** (design docs, repo-persistent, produced by `yp-brainstorm`):
 
 ```
-docs/superpowers/plans/YYYY-MM-DD-NN-name.md
+docs/specs/YYYY-MM-DD-<topic>-design.md
 ```
 
-**Ephemeral plans** (session-scoped):
+**Committed plans** (implementation plans, repo-persistent, produced by `yp-auto-plan`):
+
+```
+docs/plans/YYYY-MM-DD-<feature>.md
+```
+
+**Ephemeral plans** (session-scoped, not committed):
 
 ```
 <appDataDir>/brain/<conversation-id>/
@@ -39,13 +45,13 @@ docs/superpowers/plans/YYYY-MM-DD-NN-name.md
 └── walkthrough.md
 ```
 
-When picking up work from a prior session, check `docs/superpowers/plans/`
-first. To find context from past conversations, check KI summaries first,
-then conversation logs.
+When picking up work from a prior session, check `docs/plans/` and `docs/specs/` first. To find context from past conversations, check KI summaries first, then conversation logs.
+
+**Write new design and plan files under `docs/specs/` and `docs/plans/` — never under a third-party plugin namespace.**
 
 ## INDEX.md Usage
 
-`INDEX.md` at the skill folder root is the fastest way to find the right skill. Read it like a phone book entry — one row tells you if a skill is relevant without loading its full SKILL.md.
+`INDEX.md` is for repository audits, maintenance, and checking category coverage. Runtime skill selection should use the router ladder first.
 
 ```markdown
 | Skill | Triggers on | Covers |

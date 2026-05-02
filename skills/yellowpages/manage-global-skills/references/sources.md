@@ -1,21 +1,15 @@
 # Manage Global — Sources Reference
 
-## npm package
+## Native plugin
 
-```bash
-# Download and extract to ~/.claude/skills/<name>/
-npx skills add <package-name>
-# Or for yellowpages skills:
-npx yp-stack
-```
+Use the host's plugin mechanism when available: Claude plugin marketplace, Cursor plugin manifest, Gemini extension, or OpenCode plugin.
 
 ## git URL
 
 ```bash
-# Clone into a temp dir, copy skill directory
-git clone <url> /tmp/skill-source
-cp -r /tmp/skill-source/<skill-dir> ~/.claude/skills/<name>
-rm -rf /tmp/skill-source
+git clone <url> ~/.agents/<name>
+mkdir -p ~/.agents/skills
+ln -s ~/.agents/<name>/skills/<library> ~/.agents/skills/<library>
 ```
 
 ## Local path
@@ -27,10 +21,6 @@ cp -r /path/to/skill ~/.claude/skills/<name>
 
 ## After any install
 
-Always run:
-```bash
-# Verify skill is well-formed
-# (use /validate skill inside Claude Code)
-```
+Always run `validate-skill` on the installed skill path.
 
-Then confirm the skill appears in `/status` on next session start.
+Then restart the host and confirm the skill appears in native skill discovery.

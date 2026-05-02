@@ -7,7 +7,6 @@ description: >
   pages, adding routes, choosing where to put state, wiring up data fetching,
   creating mutation hooks, checking permissions on the frontend, or organizing
   components by feature.
-command: /frontend-architecture
 ---
 
 # Frontend Architecture

@@ -25,7 +25,11 @@ skills/
 └── yellowpages/          ← ALL installable skills (single source of truth)
     ├── SKILL.md          ← main cover page
     ├── INDEX.md          ← skill discovery index
-    ├── SKILLS-INDEX.md   ← utility command reference
+    ├── using-yellowpages/← runtime bootstrap skill
+    ├── yp-workflow/      ← coding-session workflow router
+    ├── yp-skill-system/  ← yellowpages/skill maintenance router
+    ├── yp-stack-router/  ← stack/domain router
+    ├── yp-session-tools/ ← session/context utility router
     ├── references/       ← core yellowpages reference files
     ├── scripts/          ← Python utilities
     └── <skill-name>/     ← individual skill directories
@@ -39,17 +43,21 @@ skills/
 ├── templates/            ← document scaffolds
 └── state/                ← persistent cross-session state (learnings, gates)
 
-packages/yp-stack/        ← NPM installer (bundles skills/ + .agents/ for distribution)
-hooks/                    ← SessionStart hooks (caveman, skills-manifest)
+.claude-plugin/           ← Claude plugin metadata
+.cursor-plugin/           ← Cursor plugin metadata
+.opencode/                ← OpenCode plugin entrypoint
+.codex/                   ← Codex native discovery install instructions
+hooks/                    ← SessionStart bootstrap hook
+commands/                 ← High-level chat command aliases only
 ```
 
 ## Navigation Protocol
 
-1. Read `project-context.md` (this file) first
-2. Check `skills/yellowpages/INDEX.md` to locate the right skill
-3. Read that skill's `SKILL.md` cover page
-4. Follow only the reference branch your task requires
-5. For workflow tasks, enter the relevant `.agents/workflows/` step-file sequence
+1. Runtime starts with `skills/yellowpages/using-yellowpages/SKILL.md`
+2. Load one category router
+3. Load one leaf skill from that router
+4. Follow only the reference branch the leaf skill requires
+5. Use `INDEX.md` for audits/maintenance, not normal runtime routing
 
 ## Global Constraints
 
@@ -58,9 +66,9 @@ hooks/                    ← SessionStart hooks (caveman, skills-manifest)
 - Scratch files go in the conversation's `scratch/` directory, not in the repo
 - Append session learnings to `.agents/state/learnings.jsonl` at the end of any session where meaningful work was done
 - Write gate status to `.agents/state/gates/<workflow>.json` after any multi-step workflow completes
-- Caveman terse mode is active by default. See `skills/yellowpages/caveman/SKILL.md` to toggle or read about intensity levels.
-- Before any task touching `packages/yp-stack/` is marked complete, run `bun lint && bun fmt:check` inside that package and confirm clean output
-- **Skills single source of truth**: all skills live in `skills/yellowpages/`. The bundler reads from there. Never duplicate skills into `.agents/`.
+- Runtime context must stay lean: inject only `skills/yellowpages/using-yellowpages/SKILL.md`; load all other skills on demand.
+- Do not recreate the removed custom installer. Native plugin/skill discovery is the install model.
+- **Skills single source of truth**: all skills live in `skills/yellowpages/`. Never duplicate skills into `.agents/`.
 
 ## React Coding Rules
 

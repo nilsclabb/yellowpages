@@ -1,32 +1,26 @@
 # Yellowpages Skills Index
 
-Master listing of all skills in this package. Read this before scanning individual files.
+Read this for repository audits and skill maintenance. Runtime routing starts at `using-yellowpages`.
 
-## Core Skills
+## Runtime Routers
 
-| Skill | Triggers when... | Covers |
-|---|---|---|
-| `yellowpages` | "create a skill", "scaffold skill", "skill standard", "workflow", "learnings" | Skill creation, authoring, packaging, navigation, documentation, agents, workflows, state |
-| `pr-code-review` | "review this PR", "audit this branch", "make this branch review-ready", "/pr-code-review" | PR review workflow — recurring mistakes, terse comments, verification, CI closeout |
-| `caveman` | "terse mode", "caveman", "toggle verbosity", "/caveman" | Terse agent communication — on by default, toggle anytime |
-| `react-patterns` | "useEffect", "form sync", "form state", "key-based remount", "react pattern" | Approved React patterns — what not to do and why, with before/after code |
+| Router | When to load |
+|---|---|
+| `using-yellowpages` | Session bootstrap; routes only to category routers |
+| `yp-workflow` | Coding workflow: design, plan, execute, verify, review |
+| `yp-skill-system` | Yellowpages/skill authoring, validation, diagnosis, management |
+| `yp-stack-router` | Stack/domain guidance: Convex, React, UI, monorepo |
+| `yp-session-tools` | Help, status, context, notes, reload, compression |
 
-## Stack Skills
+## Leaf Skill Groups
 
-| Skill | Triggers when... | Covers |
-|---|---|---|
-| `preferred-stack` | "what stack", "new project", "tech choice", "architecture decision" | Tech stack rationale and choices |
-| `convex-patterns` | "write a mutation", "convex schema", "backend function", "use node" | Convex backend patterns — auth, multitenancy, validation |
-| `frontend-architecture` | "new page", "routing", "state management", "data fetching" | Frontend architecture — structure, routing, data, state |
-| `ui-component-system` | "new component", "styling", "design system", "dark mode" | UI component system — color, catalog, patterns |
-| `monorepo-setup` | "setup project", "workspace", "build pipeline", "deploy" | Monorepo configuration — workspace structure, build, deploy |
+| Group | Skills |
+|---|---|
+| Workflow | `yp-brainstorm`, `yp-auto-plan`, `yp-tasks`, `yp-verify`, `pr-code-review` |
+| Skill system | `yellowpages`, `scaffold-skill`, `validate-skill`, `yp-diagnose`, `manage-global-skills`, `manage-project-skills` |
+| Stack | `preferred-stack`, `convex-patterns`, `frontend-architecture`, `ui-component-system`, `monorepo-setup`, `react-patterns` |
+| Session tools | `yp-help`, `yp-status`, `yp-context`, `yp-session`, `yp-reload`, `yp-notes`, `yp-remember`, `yp-forget`, `yp-compress` |
 
-## Utility Skills
+## Commands
 
-See [SKILLS-INDEX.md](SKILLS-INDEX.md) for the full list of `/yp:*` commands.
-
----
-
-## Adding Items
-
-Add one row to the appropriate table above. Keep each row to a single line.
+Only high-level chat commands live in `commands/`; skills load through native skill discovery.

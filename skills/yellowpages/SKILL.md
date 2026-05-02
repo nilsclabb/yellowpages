@@ -15,7 +15,7 @@ The yellowpages system is the complete standard for how skills are created, auth
 | **One job per file** | A file either *routes* or *explains* — never both |
 | **Load on demand** | Read sub-files only when the task requires that branch |
 | **Deep-link navigation** | Every reference listed with *when* to read it |
-| **Self-documenting index** | `INDEX.md` ≤ 30 lines lists every item + trigger |
+| **Layered routing** | Bootstrap → category router → leaf skill → reference |
 
 ## Reference Map — Skill Creation & Authoring
 
@@ -50,15 +50,13 @@ python scripts/init_skill.py <skill-name> --path <output-directory>
 
 For the full 6-step process, read [references/creation-process.md](references/creation-process.md).
 
-## Repo Index
+## Runtime Routing
 
-Read [INDEX.md](INDEX.md) to discover all skills, agents, workflows, checklists, and templates in this repo.
+Session start loads `using-yellowpages`, which routes to category routers. Use `INDEX.md` for audits and maintenance, not normal runtime routing.
 
 ## Session Start Protocol
 
-1. Read `.agents/project-context.md` (repo constitution)
-2. Read `.agents/ETHOS.md` (builder principles)
-3. Read last 20 lines of `.agents/state/learnings.jsonl` if it exists
-4. Check `INDEX.md` to find the right skill or workflow
-5. Read that item's cover page
-6. Follow only the branch your task requires
+1. Load `using-yellowpages`
+2. Pick one category router
+3. Load one leaf skill
+4. Follow only the reference branch required

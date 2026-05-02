@@ -1,0 +1,2 @@
+{"date":"2026-05-02","learning":"Yellowpages no longer uses the custom yp-stack installer. Native plugin discovery is the install model, and SessionStart should inject only skills/yellowpages/using-yellowpages/SKILL.md as the bootstrap."}
+{"date":"2026-05-02","learning":"Yellowpages runtime routing is now layered: using-yellowpages -> category router -> leaf skill -> reference file. Default coding work enters yp-workflow; stack/framework/tooling questions enter yp-stack-router only when needed."}

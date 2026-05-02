@@ -6,19 +6,14 @@
 ---
 name: skill-name
 description: <comprehensive trigger + scope description>
-command: /yp:skill-name
-argumentHint: "<arg>"
 ---
 ```
 
-**Valid fields:** `name` (required), `description` (required), `command` (optional), `argumentHint` (optional).
-
-- `command` — the slash command that invokes this skill (e.g., `/yp:help`, `/convex-patterns`). Omit for skills that are only triggered by context matching (e.g., the root `yellowpages` routing skill). The SessionStart hook reads this field to build the `[COMMANDS:]` manifest line dynamically.
-- `argumentHint` — placeholder shown after the command in help text (e.g., `"<file>"`, `"<name>"`). Omit if the command takes no arguments.
+**Valid fields:** `name` (required), `description` (required). Host-specific metadata belongs in plugin manifests or `commands/`, not skill frontmatter.
 
 ### Writing a Good Description
 
-The description is the **only** thing Claude reads when deciding whether to use this skill. Make it do two jobs:
+The description is the discovery API. Make it do two jobs:
 
 1. **What it does** — the skill's domain and capabilities
 2. **When to use it** — explicit trigger phrases and contexts

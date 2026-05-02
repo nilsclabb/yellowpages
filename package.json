@@ -1,0 +1,7 @@
+{
+  "name": "yellowpages",
+  "version": "0.6.0",
+  "type": "module",
+  "description": "Progressive-disclosure skill library for LLM-friendly skill authoring, routing, planning, and project workflows",
+  "main": ".opencode/plugins/yellowpages.js"
+}

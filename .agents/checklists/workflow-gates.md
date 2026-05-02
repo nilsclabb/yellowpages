@@ -15,7 +15,7 @@ Read `.agents/state/<workflow-name>/gates.json`. Each gate listed as `required: 
 ## Required Gates (Skill Creation Workflows)
 
 - [ ] `skill-quality.md` checklist has been run and all criteria pass
-- [ ] New skill has a row in `.agents/skills/yellowpages/INDEX.md`
+- [ ] New skill appears in the right group in `skills/yellowpages/INDEX.md`
 - [ ] All files in the skill folder are within line limits (SKILL.md ≤ 80, references ≤ 100)
 
 ## Required Gates (Any Workflow Producing a User-Facing Artifact)

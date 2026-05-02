@@ -20,8 +20,8 @@ Verifies a skill meets yellowpages standards before marking it complete.
 
 ## INDEX.md
 
-- [ ] The skill has a row in `.agents/skills/yellowpages/INDEX.md`
-- [ ] The row has: skill name, trigger phrase, 3–5 word scope
+- [ ] The skill appears in the correct group in `skills/yellowpages/INDEX.md`
+- [ ] Router skills appear in Runtime Routers; leaf skills appear in Leaf Skill Groups
 
 ## General
 

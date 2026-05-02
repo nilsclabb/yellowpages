@@ -1,15 +1,13 @@
 ---
 name: yp-compress
-description: Rewrite a memory file in terse caveman-style prose to reduce input tokens by ~46%.
-command: /yp:compress
-argumentHint: "<file>"
+description: Rewrite a memory file in terse prose to reduce input tokens.
 ---
 
-# /yp:compress <file>
+# Compress Context
 
 Rewrite a memory file in terse form. Saves original as `<filename>.original.md`.
 
-**Usage:** `/yp:compress CLAUDE.md` or `/yp:compress .agents/project-context.md`
+Invoke with a target file, for example `CLAUDE.md` or `.agents/project-context.md`.
 
 ## What Claude does
 

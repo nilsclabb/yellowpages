@@ -1,17 +1,15 @@
 ---
 name: yp-forget
 description: Remove a note from CLAUDE.md Agent Notes section.
-command: /yp:forget
-argumentHint: "<fact>"
 ---
 
-# /yp:forget <fact>
+# Forget Note
 
 Remove a note from CLAUDE.md Agent Notes.
 
 ## Target file
 
-Same lookup as `/yp:remember` — cwd `CLAUDE.md`, fallback to `~/CLAUDE.md`.
+Same lookup as `yp-remember` — cwd `CLAUDE.md`, fallback to `~/CLAUDE.md`.
 
 ## What to do
 

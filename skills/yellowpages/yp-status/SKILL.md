@@ -1,19 +1,18 @@
 ---
 name: yp-status
-description: Current session snapshot — caveman mode, active skills, project context, hook health.
-command: /yp:status
+description: Current session snapshot — yellowpages bootstrap, active skills, project context, and hook health.
 ---
 
-# /yp:status
+# Status
 
 Session snapshot. Read-only.
 
 ## What to show
 
-1. **Caveman** — read `~/.claude/.caveman-active`; report mode (full/lite/ultra) or "off"
-2. **Hooks** — read `~/.claude/settings.json` hooks section; list registered SessionStart and UserPromptSubmit commands
-3. **Skills manifest** — report from session-start context (already injected by skills-manifest.js)
+1. **Bootstrap** — confirm `using-yellowpages` is present and describe whether it was injected this session
+2. **Hooks** — list native SessionStart hooks visible to the host
+3. **Skills** — confirm `skills/yellowpages/INDEX.md` and key skills are present
 4. **Project** — `.agents/` present?, `CLAUDE.md` present?, `TASKS.md` state if present
-5. **Hook health** — verify `~/.claude/hooks/caveman-activate.js` and `~/.claude/hooks/skills-manifest.js` are readable
+5. **Plugin files** — check `.claude-plugin/`, `.cursor-plugin/`, `.opencode/`, `.codex/`, and `gemini-extension.json`
 
-Format as a compact table per section. If anything is missing or unreadable, append: "Run `/yp:diagnose` to check and repair."
+Format as a compact table per section. If anything is missing or unreadable, append: "Run `yp-diagnose` to check and repair."

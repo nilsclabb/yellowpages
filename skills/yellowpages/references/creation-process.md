@@ -62,11 +62,11 @@ Validation checks:
 - Naming conventions and directory structure
 - Description completeness
 
-**Quality gate:** Before packaging, run in `packages/yp-stack/`:
+**Quality gate:** Before packaging, validate the skill tree:
 
-    cd packages/yp-stack && bun lint && bun fmt:check
+    python skills/yellowpages/scripts/quick_validate.py --all skills/yellowpages
 
-Both must exit 0. Fix any issues before running `package_skill.py`.
+Fix any issues before running `package_skill.py`.
 
 ## Step 6 — Iterate
 

@@ -36,4 +36,4 @@ A checklist is a plain markdown file (≤ 60 lines) containing:
 
 1. Create `<name>.md` in this directory (≤ 60 lines)
 2. Add a row to the table above
-3. Add a row to `.agents/skills/yellowpages/INDEX.md`
+3. Add a row to the relevant table in this README

@@ -35,4 +35,4 @@ A template is a markdown file with:
 
 1. Create `<name>.md` in this directory
 2. Add a row to the table above
-3. Add a row to `.agents/skills/yellowpages/INDEX.md`
+3. Add a row to the relevant table in this README

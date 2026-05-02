@@ -1,17 +1,16 @@
 ---
 name: manage-global-skills
 description: View and manage all globally installed skill libraries — inventory, install, remove, update.
-command: /yp:manage-global
 ---
 
-# /yp:manage-global
+# Manage Global Skills
 
-Full inventory and management of globally installed skills. The manifest (injected at session start) already has the summary — this skill gives the full picture and management actions.
+Full inventory and management of globally installed skills. Native host discovery is the source of truth.
 
 ## What Claude shows
 
 Group `~/.claude/skills/` contents by library:
-- **yellowpages** — skill dirs matching known yp-stack skill names
+- **yellowpages** — skill dirs matching known yellowpages skill names
 - **superpowers** — detected via `enabledPlugins` in `~/.claude/settings.json`
 - **other** — any remaining dirs
 
@@ -22,7 +21,7 @@ Flag overlaps: same skill name in multiple libraries.
 ```
 [1] Install a skill to ~/.claude/skills/
 [2] Remove a skill from ~/.claude/skills/
-[3] Update yellowpages (re-run npx yp-stack)
+[3] Update yellowpages (git pull or host plugin update)
 [4] View skill details (read SKILL.md of selected skill)
 [5] Done
 ```

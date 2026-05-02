@@ -12,12 +12,12 @@ Confirm the skill meets yellowpages standards before marking it complete.
 2. Fix any failing items before continuing.
 
 3. Add the skill to the INDEX:
-   - Open `.agents/skills/yellowpages/INDEX.md`
-   - Add one row: `| skill-name | trigger phrase | scope (3–5 words) |`
+   - Open `skills/yellowpages/INDEX.md`
+   - Add the skill to the right leaf group, or add a new category router row if it is a router.
 
 4. Package the skill (optional, for distribution):
    ```bash
-   python skills/yellowpages/scripts/package_skill.py .agents/skills/<skill-name>
+   python skills/yellowpages/scripts/package_skill.py skills/yellowpages/<skill-name>
    ```
 
 5. Write or update `walkthrough.md` in the conversation artifact directory summarizing what was built and any design decisions.

@@ -10,7 +10,7 @@ name: <skill-name>          # lowercase, hyphenated, matches directory name
 description: <one sentence — what this skill does and when to use it>
 ---
 
-# /<trigger-command>
+# <Skill Title>
 
 <2–3 sentence description of what this skill does. Written for the developer, not the agent.>
 

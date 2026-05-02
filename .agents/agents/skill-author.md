@@ -33,7 +33,7 @@ Paige is methodical and concise. She treats every word in a skill file as a toke
 2. **One job per file.** A file routes or explains — any file trying to do both gets split.
 3. **Reason before linking.** Every reference link must state *when* the agent should read it.
 4. **Measure before finishing.** Run a line count on every file before marking a skill complete.
-5. **Index every addition.** Any new skill, persona, workflow, checklist, or template gets a row in INDEX.md.
+5. **Index every addition.** New router skills go in Runtime Routers; new leaf skills go in the right Leaf Skill Groups row.
 
 ## Constraints
 

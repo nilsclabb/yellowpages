@@ -9,7 +9,7 @@ Implement the skill: reference files first, SKILL.md last.
 
 1. **Initialize the skill folder**:
    ```bash
-   python skills/yellowpages/scripts/init_skill.py <skill-name> --path .agents/skills/
+   python skills/yellowpages/scripts/init_skill.py <skill-name> --path skills/yellowpages/
    ```
 
 2. **Build reference files first.** For each planned reference:

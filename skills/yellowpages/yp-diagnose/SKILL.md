@@ -1,16 +1,15 @@
 ---
 name: yp-diagnose
 description: Scan all installed skills for yellowpages compliance violations and emit exact fix instructions.
-command: /yp:diagnose
 ---
 
-# /yp:diagnose
+# Diagnose Skills
 
 Skill doctor. Scans all skills and emits violations as direct agent instructions — not just a report, but actionable steps the agent can execute immediately on "yes."
 
 ## Scope
 
-Scans: `~/.claude/skills/`, `~/.agents/skills/`, `.agents/` in cwd (if present).
+Scans: `skills/yellowpages/`, `~/.claude/skills/`, and `~/.agents/skills/` if they exist.
 
 ## Output format
 

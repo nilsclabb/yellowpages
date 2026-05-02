@@ -1,11 +1,9 @@
 ---
 name: yp-remember
 description: Append a persistent note to CLAUDE.md Agent Notes section for future sessions.
-command: /yp:remember
-argumentHint: "<fact>"
 ---
 
-# /yp:remember <fact>
+# Remember Note
 
 Append a fact to CLAUDE.md. Persists across sessions.
 

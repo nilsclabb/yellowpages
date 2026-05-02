@@ -44,4 +44,4 @@ After the frontmatter, the body (≤ 60 lines) contains:
 1. Copy the frontmatter template above
 2. Name the file `<role-slug>.md` (e.g., `skill-author.md`)
 3. Fill in frontmatter + body (≤ 80 lines total)
-4. Add a row to `.agents/skills/yellowpages/INDEX.md`
+4. Add a row to the persona table in this README

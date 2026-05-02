@@ -1,27 +1,24 @@
 ---
 name: scaffold-skill
 description: Create a new yellowpages-compliant skill from a name and description.
-command: /yp:scaffold
-argumentHint: "<name>"
 ---
 
-# /yp:scaffold <name>
+# Scaffold Skill
 
 Create a new yellowpages-compliant skill. Follows the 4-step create-skill workflow.
 
-**Usage:** `/yp:scaffold <name>` — e.g. `/yp:scaffold my-api-patterns`
+Invoke this skill by name with the desired skill slug, for example: "Use `scaffold-skill` to create `my-api-patterns`."
 
 ## What Claude does
 
 1. Ask for a one-line description if not provided
-2. Create `.agents/skills/yellowpages/<name>/` directory
+2. Create `skills/yellowpages/<name>/` directory
 3. Create `SKILL.md` using the template in `references/template.md`
 4. Create `references/` subdirectory
-5. Add an entry to `.agents/skills/yellowpages/SKILLS-INDEX.md` under the appropriate section
-6. Create publishable mirror at `skills/yellowpages/<name>/` (identical files)
-7. Run `/yp:validate .agents/skills/yellowpages/<name>` to confirm compliance
+5. Add an entry to `skills/yellowpages/INDEX.md`
+6. Run `validate-skill` on `skills/yellowpages/<name>` to confirm compliance
 
-Report: "Skill '<name>' scaffolded. Run `/yp:validate .agents/skills/yellowpages/<name>` to verify."
+Report: "Skill '<name>' scaffolded. Use `validate-skill` on `skills/yellowpages/<name>` to verify."
 
 ## References
 

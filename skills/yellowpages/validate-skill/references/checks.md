@@ -23,5 +23,5 @@
 | Check | Note |
 |---|---|
 | `name:` matches directory name | Consistency; mismatch causes confusing skill load |
-| Entry in SKILLS-INDEX.md or INDEX.md | Skill is undiscoverable without it |
+| Entry in INDEX.md | Skill is undiscoverable without it |
 | Reference files each do one job | Files that both route and explain violate yellowpages rule |
